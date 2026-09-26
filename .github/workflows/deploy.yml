@@ -9,9 +9,6 @@ jobs:
   deploy:
     name: Build & deploy ke Cloudflare
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/api
     steps:
       - uses: actions/checkout@v4
 
@@ -20,15 +17,16 @@ jobs:
           node-version: 22
           cache: npm
 
-      # allow-scripts di npm 11 memblokir postinstall (esbuild/workerd)
-      - name: Izinkan postinstall
-        run: npm config set allow-scripts true
-
+      # Postinstall esbuild/workerd diizinkan lewat field `allowScripts` di
+      # package.json, jadi tidak perlu flag tambahan di sini.
+      # (Catatan: `npm config set allow-scripts` gagal di root workspace dengan
+      # ENOWORKSPACES, jadi jangan dipakai.)
       - name: Install dependensi
         run: npm ci
 
-      # typecheck + build registry + build admin (wajib ada sebelum deploy
-      # karena blok [assets] membaca apps/admin/dist)
+      # typecheck + build registry paket + build admin. Admin wajib dibangun
+      # lebih dulu karena blok [assets] pada wrangler.toml membaca
+      # apps/admin/dist.
       - name: Build
         run: npm run build
 
@@ -38,10 +36,10 @@ jobs:
       - name: Periksa konfigurasi deploy
         id: deploy
         env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           D1: ${{ secrets.D1_DATABASE_ID }}
           KV: ${{ secrets.KV_NAMESPACE_ID }}
           R2: ${{ secrets.R2_BUCKET_NAME }}
-          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           if [ -z "$TOKEN" ] || [ -z "$D1" ] || [ -z "$KV" ] || [ -z "$R2" ]; then
             echo "::notice::Secret Cloudflare belum lengkap, deploy dilewati."
@@ -63,4 +61,5 @@ jobs:
           d1DatabaseId: ${{ secrets.D1_DATABASE_ID }}
           kvNamespaceId: ${{ secrets.KV_NAMESPACE_ID }}
           r2BucketName: ${{ secrets.R2_BUCKET_NAME }}
+          workingDirectory: apps/api
           command: deploy
