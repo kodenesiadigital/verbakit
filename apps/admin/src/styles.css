@@ -1023,6 +1023,16 @@ tr:focus-within .row-actions-inline {
   border-bottom: 1px solid #f0f0f1;
   font-size: 13px;
 }
+.wp-install-form {
+  border: 1px dashed var(--wp-border);
+  padding: 14px;
+  background: #f9fafb;
+}
+
+.wp-install-form .wp-form-row {
+  max-width: 560px;
+}
+
 /* ---------- Taksonomi & media picker ---------- */
 .tax-list {
   max-height: 190px;

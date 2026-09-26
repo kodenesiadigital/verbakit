@@ -14,6 +14,8 @@ import {
   updatePost,
 } from '../db.ts';
 import { getPostTerms, setPostTerms } from '../terms.ts';
+import { dispatchServiceEvent } from '../service-plugins.ts';
+import { runInBackground } from '../background.ts';
 import type { RouteDef } from './types.ts';
 import type { Env } from '../types.ts';
 
@@ -123,6 +125,15 @@ export const postRoutes: RouteDef[] = [
       if (spec.categories?.length || spec.tags?.length) {
         await setPostTerms(env, post.id, spec);
       }
+      // Event ke plugin service (jalur admin). Diantrikan lewat waitUntil supaya
+      // requestnya tidak dibatalkan Worker setelah respons terkirim.
+      runInBackground(env, dispatchServiceEvent(env, 'post.created', {
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        status: post.status,
+        type: post.type,
+      }));
       return json({ post: await withTerms(env, post) }, 201);
     },
   },
@@ -152,6 +163,13 @@ export const postRoutes: RouteDef[] = [
       if (spec.categories || spec.tags) {
         await setPostTerms(env, post.id, spec);
       }
+      runInBackground(env, dispatchServiceEvent(env, 'post.updated', {
+        id: post.id,
+        title: post.title,
+        slug: post.slug,
+        status: post.status,
+        type: post.type,
+      }));
       return json({ post: await withTerms(env, post) });
     },
   },

@@ -2,7 +2,7 @@
  * DDL idempotent (aman dijalankan berulang). Dijalankan otomatis saat boot
  * Worker bila versi skema di KV berbeda.
  */
-export const SCHEMA_VERSION = '4';
+export const SCHEMA_VERSION = '5';
 
 export const schemaSql = `
 CREATE TABLE IF NOT EXISTS users (
@@ -80,4 +80,24 @@ CREATE TABLE IF NOT EXISTS password_resets (
 ) WITHOUT ROWID;
 
 CREATE INDEX IF NOT EXISTS idx_password_resets_user ON password_resets (user_id);
+
+-- Registry plugin runtime (model hybrid). Plugin "bundled" tetap datang dari
+-- build-time registry; tabel ini menyimpan plugin "service" yang dipasang
+-- setelah instalasi (marketplace) tanpa perlu deploy ulang.
+CREATE TABLE IF NOT EXISTS plugins (
+  id           TEXT PRIMARY KEY,
+  name         TEXT NOT NULL,
+  version      TEXT NOT NULL DEFAULT '0.0.0',
+  description  TEXT NOT NULL DEFAULT '',
+  author       TEXT NOT NULL DEFAULT '',
+  source       TEXT NOT NULL DEFAULT 'service',
+  endpoint     TEXT,
+  secret       TEXT,
+  capabilities TEXT NOT NULL DEFAULT '[]',
+  status       TEXT NOT NULL DEFAULT 'inactive',
+  created_at   TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at   TEXT NOT NULL DEFAULT (datetime('now'))
+) WITHOUT ROWID;
+
+CREATE INDEX IF NOT EXISTS idx_plugins_status ON plugins (status);
 `;

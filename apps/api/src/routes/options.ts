@@ -1,4 +1,6 @@
 import { getAllOptions, setOption } from '../db.ts';
+import { dispatchServiceEvent } from '../service-plugins.ts';
+import { runInBackground } from '../background.ts';
 import { badRequest, json } from '../router.ts';
 import type { RouteDef } from './types.ts';
 
@@ -19,6 +21,7 @@ export const optionsRoutes: RouteDef[] = [
         if (typeof name !== 'string' || typeof value !== 'string') continue;
         await setOption(env, name, value);
       }
+      runInBackground(env, dispatchServiceEvent(env, 'options.updated', { keys: Object.keys(options) }));
       return json({ ok: true, options: await getAllOptions(env) });
     },
   },

@@ -13,6 +13,8 @@ export interface Env {
   RESEND_API_KEY?: string;
   MAIL_FROM?: string;
   MAIL_FROM_NAME?: string;
+  /** Kunci untuk memanggil /api/cron/tick. Wajib ada agar endpoint aktif. */
+  CRON_SECRET?: string;
 }
 
 export { schemaSql };

@@ -12,10 +12,13 @@ import { systemRoutes } from './routes/system.ts';
 import { userRoutes } from './routes/users.ts';
 import { themeRoutes } from './routes/themes.ts';
 import { termRoutes } from './routes/terms.ts';
+import { servicePluginRoutes } from './routes/plugin-store.ts';
+import { cronRoutes } from './routes/cron.ts';
 import { registerSeoRoutes } from './routes/seo.ts';
 import { registerPublicRoutes, renderErrorPage } from './routes/public.ts';
 import { resolveTheme } from './routes/themes.ts';
 import { getOption } from './db.ts';
+import { bind } from './background.ts';
 import { text } from './router.ts';
 import { PluginManager } from './plugins/manager.ts';
 import type { Env } from './types.ts';
@@ -48,12 +51,23 @@ function isPublic(pathname: string): boolean {
 
 const managers = new WeakMap<Env, PluginManager>();
 
-/** Executes schema statements one-by-one (robust across D1 bindings). */
+/**
+ * Eksekusi skema statement per statement.
+ *
+ * Baris komentar `-- ...` dibuang lebih dulu: jika tidak, tanda titik koma di
+ * dalam komentar akan memecah statement dan sisanya terkirim sebagai SQL.
+ */
 async function applySchema(env: Env): Promise<void> {
-  const statements = schemaSql
+  const sql = schemaSql
+    .split('\n')
+    .filter((line) => !line.trim().startsWith('--'))
+    .join('\n');
+
+  const statements = sql
     .split(';')
     .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith('--'));
+    .filter((s) => s.length > 0);
+
   for (const statement of statements) {
     await env.DB.prepare(statement).run();
   }
@@ -166,8 +180,8 @@ function originAllowed(request: Request, url: URL): boolean {
 
 export default {
   async fetch(request: Request, env: Env, ctx: WorkerContext): Promise<Response> {
+    bind(env, (promise) => ctx.waitUntil(promise));
     const url = new URL(request.url);
-
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders(request) });
     }
@@ -198,6 +212,8 @@ export default {
       ...userRoutes,
       ...themeRoutes,
       ...termRoutes,
+      ...servicePluginRoutes,
+      ...cronRoutes,
     ]);
     registerSeoRoutes(router, env, getPluginManager(env));
     // Public site rendering (themes) — registered last so /api/* wins.

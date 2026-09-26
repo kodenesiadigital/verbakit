@@ -4,6 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import { api } from '../api.ts';
 import { useAuth } from '../auth.tsx';
 import { Icon } from '../icons.tsx';
+import { ServicePluginsPanel } from './ServicePlugins.tsx';
 import type { Plugin } from '@pressforge/core';
 
 export function PluginsPage() {
@@ -73,7 +74,10 @@ export function PluginsPage() {
       </div>
 
       {tab === 'add' ? (
-        <AddPluginPanel />
+        <>
+          <AddPluginPanel />
+          <ServicePluginsPanel />
+        </>
       ) : (
         <>
           {error && <div className="wp-notice error">{error}</div>}
@@ -133,6 +137,8 @@ export function PluginsPage() {
             </table>
           )}
           {!isAdmin && <p className="muted">Hanya administrator yang dapat mengaktifkan plugin.</p>}
+
+          <ServicePluginsPanel />
         </>
       )}
     </>
