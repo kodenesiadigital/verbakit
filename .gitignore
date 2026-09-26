@@ -53,3 +53,6 @@ Thumbs.db
 
 # ---------- Artefak lokal ----------
 .cookies.txt
+
+# Log dev lokal
+.tmp-*.log

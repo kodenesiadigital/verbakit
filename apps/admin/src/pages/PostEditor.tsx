@@ -67,7 +67,7 @@ export function PostEditorPage({ type }: { type: 'post' | 'page' }) {
       .catch((err) => setError(err instanceof Error ? err.message : 'Gagal memuat item'));
   }, [id, isNew, loadRevisions]);
 
-  // Peringatan WP:离开前提示未保存
+  // Peringatan ala WordPress: konfirmasi sebelum menutup halaman saat unsaved.
   useEffect(() => {
     const handler = (event: BeforeUnloadEvent) => {
       if (!dirty) return;
