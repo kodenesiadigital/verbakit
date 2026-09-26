@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api.ts';
 import { Icon } from '../icons.tsx';
-import type { Post } from '@pressforge/core';
+import type { PostSummary } from '@pressforge/core';
 
 const STATUS_LABELS: Record<string, string> = {
   all: 'Semua status',
@@ -14,7 +14,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function PostsPage({ type }: { type: 'post' | 'page' }) {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<PostSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [status, setStatus] = useState(searchParams.get('status') ?? 'all');
   const [search, setSearch] = useState(searchParams.get('s') ?? '');
@@ -38,7 +38,7 @@ export function PostsPage({ type }: { type: 'post' | 'page' }) {
     try {
       const params = new URLSearchParams({ type, status, per_page: '50' });
       if (appliedSearch.trim()) params.set('search', appliedSearch.trim());
-      const data = await api.get<{ posts: Post[]; total: number }>(`/api/posts?${params.toString()}`);
+      const data = await api.get<{ posts: PostSummary[]; total: number }>(`/api/posts?${params.toString()}`);
       setPosts(data.posts);
       setTotal(data.total);
       setSelected([]);
@@ -203,6 +203,15 @@ export function PostsPage({ type }: { type: 'post' | 'page' }) {
                   <strong>
                     <a href={adminUrl(`${basePath}/${post.id}`)}>{post.title || '(tanpa judul)'}</a>
                   </strong>
+                  {(post.terms?.length ?? 0) > 0 && (
+                    <div className="row-actions-inline" style={{ visibility: 'visible' }}>
+                      {post.terms!.map((term) => (
+                        <span key={term.id} className={`term-chip ${term.kind === 'tag' ? 'tag' : ''}`}>
+                          {term.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   <div className="row-actions-inline">
                     <a href={adminUrl(`${basePath}/${post.id}`)}>
                       <Icon name="edit" size={13} /> Edit
@@ -248,7 +257,7 @@ function QuickEdit({
   onClose,
   onSaved,
 }: {
-  post: Post;
+  post: PostSummary;
   basePath: string;
   onClose: () => void;
   onSaved: () => void;

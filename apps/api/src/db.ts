@@ -48,6 +48,7 @@ export async function getPost(env: Env, id: string): Promise<Post | null> {
   if (!row) return null;
   const post = rowToPost(row);
   post.meta = await loadMeta(env, post.id);
+  post.featuredImage = post.meta['featured_image'] ?? null;
   return post;
 }
 
@@ -56,6 +57,7 @@ export async function findBySlug(env: Env, type: string, slug: string): Promise<
   if (!row) return null;
   const post = rowToPost(row);
   post.meta = await loadMeta(env, post.id);
+  post.featuredImage = post.meta['featured_image'] ?? null;
   return post;
 }
 

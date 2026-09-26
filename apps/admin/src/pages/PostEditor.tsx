@@ -3,7 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api.ts';
 import { Icon } from '../icons.tsx';
 import { siteUrl } from '../site.ts';
-import type { Post } from '@pressforge/core';
+import { TaxonomyPanel, type TermSelection } from './TaxonomyPanel.tsx';
+import { MediaPicker } from './MediaPicker.tsx';
+import type { Post, Term } from '@pressforge/core';
 
 interface Revision {
   id: string;
@@ -30,6 +32,8 @@ export function PostEditorPage({ type }: { type: 'post' | 'page' }) {
   const [revisions, setRevisions] = useState<Revision[]>([]);
   const [permalinkStructure, setPermalinkStructure] = useState('/blog/:slug');
   const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const [featuredImage, setFeaturedImage] = useState<string | null>(null);
+  const [terms, setTerms] = useState<TermSelection>({ categories: [], tags: [] });
 
   const loadRevisions = useCallback((postId: string) => {
     api
@@ -45,7 +49,7 @@ export function PostEditorPage({ type }: { type: 'post' | 'page' }) {
       .catch(() => undefined);
     if (isNew) return;
     api
-      .get<{ post: Post }>(`/api/posts/${id}`)
+      .get<{ post: Post & { terms?: Term[] } }>(`/api/posts/${id}`)
       .then(({ post }) => {
         setTitle(post.title);
         setSlug(post.slug);
@@ -53,6 +57,11 @@ export function PostEditorPage({ type }: { type: 'post' | 'page' }) {
         setContent(post.content);
         setStatus(post.status === 'publish' ? 'publish' : 'draft');
         setUpdatedAt(post.updatedAt);
+        setFeaturedImage(post.featuredImage ?? null);
+        setTerms({
+          categories: (post.terms ?? []).filter((t) => t.kind === 'category').map((t) => t.id),
+          tags: (post.terms ?? []).filter((t) => t.kind === 'tag').map((t) => t.id),
+        });
         loadRevisions(post.id);
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Gagal memuat item'));
@@ -75,7 +84,17 @@ export function PostEditorPage({ type }: { type: 'post' | 'page' }) {
     setError('');
     setNotice('');
     try {
-      const payload = { title, slug: slug || undefined, excerpt, content, status: nextStatus, type };
+      const payload = {
+        title,
+        slug: slug || undefined,
+        excerpt,
+        content,
+        status: nextStatus,
+        type,
+        featuredImage: featuredImage ?? '',
+        categories: terms.categories,
+        tags: terms.tags,
+      };
       const result = isNew
         ? await api.post<{ post: Post }>('/api/posts', payload)
         : await api.put<{ post: Post }>(`/api/posts/${id}`, payload);
@@ -84,6 +103,16 @@ export function PostEditorPage({ type }: { type: 'post' | 'page' }) {
       setSlug(result.post.slug);
       setUpdatedAt(result.post.updatedAt);
       setDirty(false);
+      // Setelah simpan, term baru sudah punya id; segarkan agar checkbox sinkron.
+      api
+        .get<{ post: Post & { terms?: Term[] } }>(`/api/posts/${result.post.id}`)
+        .then(({ post }) => {
+          setTerms({
+            categories: (post.terms ?? []).filter((t) => t.kind === 'category').map((t) => t.id),
+            tags: (post.terms ?? []).filter((t) => t.kind === 'tag').map((t) => t.id),
+          });
+        })
+        .catch(() => undefined);
       loadRevisions(result.post.id);
       if (isNew) navigate(`${basePath}/${result.post.id}`, { replace: true });
     } catch (err) {
@@ -269,6 +298,9 @@ export function PostEditorPage({ type }: { type: 'post' | 'page' }) {
               </div>
             </div>
           </div>
+
+          <MediaPicker value={featuredImage} onChange={setFeaturedImage} />
+          <TaxonomyPanel value={terms} onChange={setTerms} />
 
           {!isNew && (
             <div className="wp-publishbox" style={{ marginTop: 16 }}>

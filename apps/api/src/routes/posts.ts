@@ -1,4 +1,4 @@
-import { type Post, type PostStatus } from '@pressforge/core';
+import { type Post, type PostSummary, type PostStatus, type Term } from '@pressforge/core';
 import { badRequest, forbidden, json, notFound, readBody } from '../router.ts';
 import {
   bulkUpdatePosts,
@@ -13,7 +13,25 @@ import {
   trashPost,
   updatePost,
 } from '../db.ts';
+import { getPostTerms, setPostTerms } from '../terms.ts';
 import type { RouteDef } from './types.ts';
+import type { Env } from '../types.ts';
+
+/** Bentuk respons post yang lengkap dengan term. */
+async function withTerms(env: Env, post: Post): Promise<PostSummary> {
+  return { ...post, terms: await getPostTerms(env, post.id) };
+}
+
+/** Ambil daftar term dari body (id atau nama baru). */
+function readTermSpec(body: Record<string, unknown>): { categories?: string[]; tags?: string[] } {
+  const pick = (key: string) => {
+    const value = body[key];
+    return Array.isArray(value) ? value.filter((v) => typeof v === 'string' && v.trim() !== '') : undefined;
+  };
+  const categories = pick('categories');
+  const tags = pick('tags');
+  return { categories, tags };
+}
 
 function parsePagination(params: URLSearchParams): { limit: number; offset: number } {
   const page = Math.max(1, Number(params.get('page')) || 1);
@@ -48,9 +66,14 @@ export const postRoutes: RouteDef[] = [
         limit,
         offset,
       });
-      const filtered = plugins.hooks.applyFilters<{ posts: Post[]; total: number }>(
+      const categoryId = url.searchParams.get('category');
+      let rows: PostSummary[] = await Promise.all(posts.map((post) => withTerms(env, post)));
+      if (categoryId) {
+        rows = rows.filter((post) => post.terms.some((term) => term.kind === 'category' && term.id === categoryId));
+      }
+      const filtered = plugins.hooks.applyFilters<{ posts: PostSummary[]; total: number }>(
         'posts.list',
-        { posts, total },
+        { posts: rows, total },
         { type },
       );
       return json(filtered);
@@ -68,7 +91,7 @@ export const postRoutes: RouteDef[] = [
         : await getPost(env, ref);
       if (!post) return notFound('Postingan tidak ditemukan');
       const rendered = plugins.hooks.applyFilters<{ post: Post }>('posts.get', { post });
-      return json(rendered);
+      return json({ post: await withTerms(env, post) });
     },
   },
   {
@@ -91,9 +114,16 @@ export const postRoutes: RouteDef[] = [
         excerpt: String(body.excerpt ?? ''),
         status,
         authorId: user.uid,
-        meta: body.meta && typeof body.meta === 'object' ? (body.meta as Record<string, string>) : undefined,
+        meta: {
+          ...(body.meta && typeof body.meta === 'object' ? (body.meta as Record<string, string>) : {}),
+          ...(body.featuredImage ? { featured_image: String(body.featuredImage) } : {}),
+        },
       });
-      return json({ post }, 201);
+      const spec = readTermSpec(body);
+      if (spec.categories?.length || spec.tags?.length) {
+        await setPostTerms(env, post.id, spec);
+      }
+      return json({ post: await withTerms(env, post) }, 201);
     },
   },
   {
@@ -112,10 +142,17 @@ export const postRoutes: RouteDef[] = [
         content: body.content !== undefined ? String(body.content) : undefined,
         excerpt: body.excerpt !== undefined ? String(body.excerpt) : undefined,
         status,
-        meta: body.meta && typeof body.meta === 'object' ? (body.meta as Record<string, string>) : undefined,
+        meta: {
+          ...(body.meta && typeof body.meta === 'object' ? (body.meta as Record<string, string>) : {}),
+          ...(body.featuredImage !== undefined ? { featured_image: String(body.featuredImage || '') } : {}),
+        },
       });
       if (!post) return notFound('Postingan tidak ditemukan');
-      return json({ post });
+      const spec = readTermSpec(body);
+      if (spec.categories || spec.tags) {
+        await setPostTerms(env, post.id, spec);
+      }
+      return json({ post: await withTerms(env, post) });
     },
   },
   // ---- Quick edit (inline, from the posts list) ----

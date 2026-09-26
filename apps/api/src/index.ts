@@ -11,6 +11,7 @@ import { mediaRoutes } from './routes/media.ts';
 import { systemRoutes } from './routes/system.ts';
 import { userRoutes } from './routes/users.ts';
 import { themeRoutes } from './routes/themes.ts';
+import { termRoutes } from './routes/terms.ts';
 import { registerSeoRoutes } from './routes/seo.ts';
 import { registerPublicRoutes, renderErrorPage } from './routes/public.ts';
 import { resolveTheme } from './routes/themes.ts';
@@ -196,6 +197,7 @@ export default {
       ...systemRoutes,
       ...userRoutes,
       ...themeRoutes,
+      ...termRoutes,
     ]);
     registerSeoRoutes(router, env, getPluginManager(env));
     // Public site rendering (themes) — registered last so /api/* wins.

@@ -31,6 +31,8 @@ export interface Post {
   createdAt: string;
   updatedAt: string;
   meta: Record<string, string>;
+  /** Key objek R2 untuk gambar utama (meta `featured_image`). */
+  featuredImage?: string | null;
 }
 
 export interface PostSummary extends Post {
