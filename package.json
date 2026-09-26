@@ -43,5 +43,15 @@
     "esbuild@0.21.5": true,
     "workerd@1.20260925.1": true,
     "sharp@0.35.4": true
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prorstun/pressforge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/prorstun/pressforge/issues"
+  },
+  "author": {
+    "name": "prorstun"
   }
 }

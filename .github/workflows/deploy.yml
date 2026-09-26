@@ -32,7 +32,28 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Resource Cloudflare belum tentu dikonfigurasi di setiap fork/clone.
+      # Tanpa guard, build pertama gagal dengan error yang membingungkan
+      # (mis. "invalid database_id"). Lewati saja dengan peringatan.
+      - name: Periksa konfigurasi deploy
+        id: deploy
+        env:
+          D1: ${{ secrets.D1_DATABASE_ID }}
+          KV: ${{ secrets.KV_NAMESPACE_ID }}
+          R2: ${{ secrets.R2_BUCKET_NAME }}
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$D1" ] || [ -z "$KV" ] || [ -z "$R2" ]; then
+            echo "::notice::Secret Cloudflare belum lengkap, deploy dilewati."
+            echo "Isi CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, D1_DATABASE_ID,"
+            echo "KV_NAMESPACE_ID, dan R2_BUCKET_NAME di Settings > Secrets."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Deploy Worker
+        if: steps.deploy.outputs.deploy == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

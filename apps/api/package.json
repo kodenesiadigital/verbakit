@@ -19,5 +19,15 @@
     "wrangler": "^4.0.0"
   },
   "license": "AGPL-3.0-or-later",
-  "homepage": "https://pressforge.my.id"
+  "homepage": "https://pressforge.my.id",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/prorstun/pressforge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/prorstun/pressforge/issues"
+  },
+  "author": {
+    "name": "prorstun"
+  }
 }
