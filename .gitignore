@@ -59,3 +59,4 @@ Thumbs.db
 
 # Build paket yang dipublikasikan
 dist/
+.gh-login.*
