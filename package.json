@@ -24,10 +24,14 @@
   ],
   "scripts": {
     "build:registry": "node scripts/generate-registry.mjs",
+    "build:core": "npm run build -w @pressforge/core",
+    "build:sdk": "npm run build -w @pressforge/plugin-sdk",
+    "build:packages": "npm run build:core && npm run build:sdk",
     "build:admin": "npm run build -w @pressforge/admin",
-    "build": "npm run build:registry && npm run typecheck && npm run build:admin",
+    "build": "npm run build:registry && npm run build:packages && npm run typecheck && npm run build:admin",
     "deploy": "npm run build && npm run deploy -w @pressforge/api",
     "typecheck": "npm run typecheck --workspaces --if-present",
+    "predev:api": "npm run build:packages",
     "dev:api": "npm run dev -w @pressforge/api",
     "dev:admin": "npm run dev -w @pressforge/admin"
   },

@@ -56,3 +56,6 @@ Thumbs.db
 
 # Log dev lokal
 .tmp-*.log
+
+# Build paket yang dipublikasikan
+dist/
