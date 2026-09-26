@@ -5,7 +5,8 @@
 **Jangan** membuka issue publik untuk melaporkan kerentanan.
 
 Laporkan lewat GitHub Security Advisories pada repo ini
-(menu **Security → Report a vulnerability**).
+(menu **Security → Report a vulnerability**), atau kirim surel ke
+`security@pressforge.my.id`.
 
 Sertakan:
 

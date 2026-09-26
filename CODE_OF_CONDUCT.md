@@ -17,7 +17,7 @@ Berlaku di issue, pull request, diskusi, dan kanal komunitas resmi PressForge.
 
 ## Pelaporan
 
-Laporkan perilaku yang tidak dapat diterima lewat `conduct@pressforge.dev`.
+Laporkan perilaku yang tidak dapat diterima lewat `conduct@pressforge.my.id`.
 Semua laporan akan ditinjau dan ditangani secara rahasia. Pelapor tidak akan
 dibasas dengan pembalasan.
 
