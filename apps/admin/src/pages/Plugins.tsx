@@ -1,3 +1,4 @@
+import { adminUrl } from '../site.ts';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api.ts';
@@ -50,7 +51,7 @@ export function PluginsPage() {
     <>
       <div className="wp-tabs">
         <a
-          href="/plugins"
+          href={adminUrl('/plugins')}
           className={tab === 'installed' ? 'active' : ''}
           onClick={(e) => {
             e.preventDefault();

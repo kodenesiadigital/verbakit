@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from './auth.tsx';
-import { siteUrl } from './site.ts';
+import { siteUrl, adminUrl } from './site.ts';
 import { Icon } from './icons.tsx';
 
 export interface AdminPage {
@@ -414,10 +414,10 @@ export function AdminBar() {
                 <div className="muted">{user?.email}</div>
               </div>
             </div>
-            <a href="/settings" onClick={() => setMenuOpen(false)}>
+            <a href={adminUrl('/settings')} onClick={() => setMenuOpen(false)}>
               <Icon name="settings" size={16} /> Profil
             </a>
-            <a href="/" onClick={() => setMenuOpen(false)}>
+            <a href={adminUrl('/')} onClick={() => setMenuOpen(false)}>
               <Icon name="dashboard" size={16} /> Dasbor
             </a>
             <a href={siteUrl('/')} target="_blank" rel="noreferrer">

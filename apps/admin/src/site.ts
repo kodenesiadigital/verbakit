@@ -12,3 +12,15 @@ export const SITE_ORIGIN: string =
 export function siteUrl(path = '/'): string {
   return `${SITE_ORIGIN}${path.startsWith('/') ? path : `/${path}`}`;
 }
+
+/**
+ * Base path admin, mengikuti `base` Vite ("/admin/").
+ * Anchor HTML biasa tidak memperhitungkan basename milik react-router,
+ * jadi tautan internal admin harus dibungkus adminUrl().
+ */
+export const ADMIN_BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+export function adminUrl(path = '/'): string {
+  const suffix = path.startsWith('/') ? path : `/${path}`;
+  return `${ADMIN_BASE}${suffix}` || '/';
+}

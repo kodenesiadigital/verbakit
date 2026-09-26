@@ -1,3 +1,4 @@
+import { adminUrl } from '../site.ts';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api.ts';
@@ -129,7 +130,7 @@ export function PostsPage({ type }: { type: 'post' | 'page' }) {
         ).map(([value, label]) => (
           <a
             key={value}
-            href={`${basePath}${value === 'all' ? '' : `?status=${value}`}`}
+            href={adminUrl(`${basePath}${value === 'all' ? '' : `?status=${value}`}`)}
             className={status === value ? 'active' : ''}
             onClick={(e) => {
               e.preventDefault();
@@ -162,7 +163,7 @@ export function PostsPage({ type }: { type: 'post' | 'page' }) {
 
       {posts.length === 0 ? (
         <div className="wp-empty">
-          Belum ada {type === 'page' ? 'halaman' : 'artikel'}. <a href={`${basePath}/new`}>Buat sekarang</a>.
+          Belum ada {type === 'page' ? 'halaman' : 'artikel'}. <a href={adminUrl(`${basePath}/new`)}>Buat sekarang</a>.
         </div>
       ) : (
         <table className="wp-list">
@@ -200,10 +201,10 @@ export function PostsPage({ type }: { type: 'post' | 'page' }) {
                 </td>
                 <td>
                   <strong>
-                    <a href={`${basePath}/${post.id}`}>{post.title || '(tanpa judul)'}</a>
+                    <a href={adminUrl(`${basePath}/${post.id}`)}>{post.title || '(tanpa judul)'}</a>
                   </strong>
                   <div className="row-actions-inline">
-                    <a href={`${basePath}/${post.id}`}>
+                    <a href={adminUrl(`${basePath}/${post.id}`)}>
                       <Icon name="edit" size={13} /> Edit
                     </a>
                     <button className="linklike" onClick={() => setQuickEditId(quickEditId === post.id ? null : post.id)}>
@@ -309,7 +310,7 @@ function QuickEdit({
         <button className="wp-btn" onClick={onClose}>
           Batal
         </button>
-        <a className="wp-btn" href={`${basePath}/${post.id}`}>
+        <a className="wp-btn" href={adminUrl(`${basePath}/${post.id}`)}>
           Edit Lengkap
         </a>
       </div>

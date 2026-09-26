@@ -83,6 +83,55 @@ async function textPage(
   );
 }
 
+const ADMIN_INDEX = '/index.html';
+
+/**
+ * Menyajikan admin SPA dari binding ASSETS.
+ * Path di luar /admin (mis. /admin/posts/123) jatuh ke index.html supaya
+ * react-router bisa menanganinya (client-side routing).
+ */
+async function serveAdmin(request: Request, env: Env, url: URL): Promise<Response> {
+  if (!env.ASSETS) {
+    return text('Admin belum dibangun. Jalankan: npm run build -w @pressforge/admin', 503, 'text/plain; charset=utf-8');
+  }
+
+  const relative = url.pathname.replace(/^\/admin\/?/, '') || ADMIN_INDEX;
+  const assetPath = `/${relative}${url.search}`;
+
+  const direct = await env.ASSETS.fetch(new Request(new URL(assetPath, url.origin), request));
+
+  // 304 harus dianggap asset yang valid: browser mengirim If-None-Match, dan
+  // Response.ok bernilai false untuk 304 sehingga kalau tidak ditangani,
+  // requestnya jatuh ke fallback index.html (MIME text/html).
+  if (direct.status === 304) return withImmutableHeaders(direct);
+  if (direct.ok) return withSecurityHeaders(direct);
+
+  // SPA fallback: minta indeks dari root aset. Path "/index.html" bisa
+  // diarahkan ulang oleh router aset, sedangkan "/" aman.
+  const fallback = await env.ASSETS.fetch(new Request(new URL('/', url.origin), request));
+  return withSecurityHeaders(fallback);
+}
+
+/** 304 tidak boleh membawa body. */
+function withImmutableHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+  headers.set('x-content-type-options', 'nosniff');
+  headers.set('referrer-policy', 'strict-origin-when-cross-origin');
+  return new Response(null, { status: 304, headers });
+}
+
+/** Header dasar untuk aset admin (cache aman, tanpa sniff). */
+function withSecurityHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+  headers.set('x-content-type-options', 'nosniff');
+  headers.set('referrer-policy', 'strict-origin-when-cross-origin');
+  if (response.headers.get('content-type')?.includes('text/html')) {
+    // index.html tidak boleh di-cache lama, asset ber-hash boleh.
+    headers.set('cache-control', 'no-cache');
+  }
+  return new Response(response.body, { status: response.status, headers });
+}
+
 function corsHeaders(request: Request): Record<string, string> {
   const origin = request.headers.get('origin');
   const allowed = origin ?? '*';
@@ -102,6 +151,11 @@ export default {
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders(request) });
+    }
+
+    // Admin SPA: gotta diserve sebelum route publik catch-all (/*).
+    if (url.pathname === '/admin' || url.pathname.startsWith('/admin/')) {
+      return serveAdmin(request, env, url);
     }
 
     // Boot: skema + seed (dijalankan ulang bila versi skema berubah).

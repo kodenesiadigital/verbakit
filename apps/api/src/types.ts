@@ -7,6 +7,8 @@ export interface Env {
   SESSION_SECRET: string;
   ADMIN_EMAIL?: string;
   ADMIN_PASSWORD?: string;
+  /** Aset statis hasil build admin (dipasang lewat blok [assets] wrangler.toml). */
+  ASSETS?: Fetcher;
 }
 
 export { schemaSql };

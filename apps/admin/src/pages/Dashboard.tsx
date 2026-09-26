@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.ts';
-import { siteUrl } from '../site.ts';
+import { siteUrl, adminUrl } from '../site.ts';
 import { Icon } from '../icons.tsx';
 
 interface SystemStatus {
@@ -71,7 +71,7 @@ export function DashboardPage() {
               <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                 {recent.map((post) => (
                   <li key={post.id} className="wp-stat-row">
-                    <a href={`/posts/${post.id}`}>{post.title || '(tanpa judul)'}</a>
+                    <a href={adminUrl(`/posts/${post.id}`)}>{post.title || '(tanpa judul)'}</a>
                     <span className={`wp-badge ${post.status}`}>{post.status}</span>
                   </li>
                 ))}
@@ -105,16 +105,16 @@ export function DashboardPage() {
             <Icon name="star" size={16} /> Aksi cepat
           </h2>
         <div className="wp-widget-body" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <a className="wp-btn primary" href="/posts/new">
+          <a className="wp-btn primary" href={adminUrl('/posts/new')}>
             Tulis Artikel
           </a>
-          <a className="wp-btn" href="/pages/new">
+          <a className="wp-btn" href={adminUrl('/pages/new')}>
             Buat Halaman
           </a>
-          <a className="wp-btn" href="/media">
+          <a className="wp-btn" href={adminUrl('/media')}>
             Upload Media
           </a>
-          <a className="wp-btn" href="/plugins">
+          <a className="wp-btn" href={adminUrl('/plugins')}>
             Kelola Plugin
           </a>
         </div>

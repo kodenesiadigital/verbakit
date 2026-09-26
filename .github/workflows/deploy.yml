@@ -1,0 +1,45 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build & deploy ke Cloudflare
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # allow-scripts di npm 11 memblokir postinstall (esbuild/workerd)
+      - name: Izinkan postinstall
+        run: npm config set allow-scripts true
+
+      - name: Install dependensi
+        run: npm ci
+
+      # typecheck + build registry + build admin (wajib ada sebelum deploy
+      # karena blok [assets] membaca apps/admin/dist)
+      - name: Build
+        run: npm run build
+
+      - name: Deploy Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # ID resource D1/KV/R2 ditulis lewat secrets agar wrangler.toml
+          # bebas dari nilai khusus akun tertentu.
+          d1DatabaseId: ${{ secrets.D1_DATABASE_ID }}
+          kvNamespaceId: ${{ secrets.KV_NAMESPACE_ID }}
+          r2BucketName: ${{ secrets.R2_BUCKET_NAME }}
+          command: deploy

@@ -1,3 +1,4 @@
+import { adminUrl } from './site.ts';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { useAuth } from './auth.tsx';
@@ -114,7 +115,7 @@ export function App() {
               title="Artikel"
               icon="post"
               actions={
-                <a className="wp-btn primary" href="/posts/new">
+                <a className="wp-btn primary" href={adminUrl('/posts/new')}>
                   <Icon name="plus" size={16} />
                   <span>Tambah Artikel</span>
                 </a>
@@ -131,7 +132,7 @@ export function App() {
               title="Halaman"
               icon="page"
               actions={
-                <a className="wp-btn primary" href="/pages/new">
+                <a className="wp-btn primary" href={adminUrl('/pages/new')}>
                   <Icon name="plus" size={16} />
                   <span>Tambah Halaman</span>
                 </a>
