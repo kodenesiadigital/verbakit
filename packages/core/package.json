@@ -1,5 +1,5 @@
-﻿{
-  "name": "@cms/core",
+{
+  "name": "@pressforge/core",
   "version": "0.1.0",
   "description": "CMS core: WordPress-like hooks/filters, plugin registry, shared types.",
   "type": "module",

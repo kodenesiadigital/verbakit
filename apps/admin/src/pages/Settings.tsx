@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api.ts';
 import { Icon } from '../icons.tsx';

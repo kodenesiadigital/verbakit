@@ -1,7 +1,7 @@
-﻿{
-  "name": "@cms/plugin-sdk",
+{
+  "name": "@pressforge/plugin-sdk",
   "version": "0.1.0",
-  "description": "SDK untuk penulis plugin CMS Cloud (mirip WordPress Plugin API).",
+  "description": "SDK untuk penulis plugin PressForge (mirip WordPress Plugin API).",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@cms/core": "0.1.0"
+    "@pressforge/core": "0.1.0"
   },
   "devDependencies": {
     "typescript": "^5.9.0"

@@ -70,7 +70,7 @@ export interface Plugin extends PluginManifest {
 
 export const DEFAULT_OPTIONS = {
   site_name: 'My Site',
-  site_tagline: 'Just another CMS Cloud site',
+  site_tagline: 'Just another PressForge site',
   site_language: 'id',
   posts_per_page: '10',
   permalink_structure: '/blog/:slug',

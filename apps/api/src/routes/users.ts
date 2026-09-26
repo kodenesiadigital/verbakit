@@ -2,7 +2,7 @@ import { createUser, getUsers, updateUser, deleteUser } from '../db.ts';
 import { hashPassword } from '../security.ts';
 import { json, notFound, badRequest, forbidden } from '../router.ts';
 import type { RouteDef } from './types.ts';
-import type { Role } from '@cms/core';
+import type { Role } from '@pressforge/core';
 
 const ROLES: Role[] = ['admin', 'editor', 'author', 'subscriber'];
 

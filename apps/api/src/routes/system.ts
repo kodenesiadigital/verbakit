@@ -1,7 +1,7 @@
 import { listPosts, countUsers, getOption, trashPost } from '../db.ts';
 import { json } from '../router.ts';
 import type { RouteDef } from './types.ts';
-import { CORE_VERSION } from '@cms/core';
+import { CORE_VERSION } from '@pressforge/core';
 
 export const systemRoutes: RouteDef[] = [
   {
@@ -15,7 +15,7 @@ export const systemRoutes: RouteDef[] = [
       ]);
       await plugins.ensureLoaded();
       return json({
-        name: 'CMS Cloud',
+        name: 'PressForge',
         version: CORE_VERSION,
         time: new Date().toISOString(),
         counts: {

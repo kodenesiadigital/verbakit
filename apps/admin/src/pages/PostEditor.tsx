@@ -1,9 +1,9 @@
-﻿import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api.ts';
 import { Icon } from '../icons.tsx';
 import { siteUrl } from '../site.ts';
-import type { Post } from '@cms/core';
+import type { Post } from '@pressforge/core';
 
 interface Revision {
   id: string;

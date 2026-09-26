@@ -1,4 +1,4 @@
-# CMS Cloud
+# PressForge
 
 WordPress-like CMS running fully on Cloudflare. Plugin-extensible.
 

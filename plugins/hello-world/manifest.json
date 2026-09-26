@@ -3,7 +3,7 @@
   "name": "Hello World",
   "version": "1.0.0",
   "description": "Plugin contoh: mendemonstrasikan hook action, filter konten, dan halaman admin sendiri.",
-  "author": "CMS Cloud",
+  "author": "PressForge",
   "entry": "src/index.ts",
   "requires": ">=0.1.0"
 }

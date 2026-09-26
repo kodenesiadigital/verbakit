@@ -1,8 +1,8 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api.ts';
 import { Icon } from '../icons.tsx';
-import type { Post } from '@cms/core';
+import type { Post } from '@pressforge/core';
 
 const STATUS_LABELS: Record<string, string> = {
   all: 'Semua status',

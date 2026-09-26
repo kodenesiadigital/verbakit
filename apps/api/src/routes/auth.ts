@@ -29,7 +29,7 @@ async function findUserByLogin(env: Env, login: string) {
 /** Seeds an admin user + default options on first boot. */
 export async function ensureAdminUser(env: Env): Promise<boolean> {
   if ((await countUsers(env)) > 0) return false;
-  const email = env.ADMIN_EMAIL ?? 'admin@cms.test';
+  const email = env.ADMIN_EMAIL ?? 'admin@pressforge.test';
   const password = env.ADMIN_PASSWORD ?? 'admin123';
   const passwordHash = await hashPassword(password);
   const id = crypto.randomUUID();
@@ -42,7 +42,7 @@ export async function ensureAdminUser(env: Env): Promise<boolean> {
 
 const DEFAULT_OPTIONS: Record<string, string> = {
   site_name: 'My Site',
-  site_tagline: 'Just another CMS Cloud site',
+  site_tagline: 'Just another PressForge site',
   site_language: 'id',
   posts_per_page: '10',
   permalink_structure: '/blog/:slug',

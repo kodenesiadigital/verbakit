@@ -1,5 +1,5 @@
-﻿{
-  "name": "@cms-plugins/hello-world",
+{
+  "name": "@pressforge-plugins/hello-world",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "./manifest.json": "./manifest.json"
   },
   "dependencies": {
-    "@cms/plugin-sdk": "0.1.0"
+    "@pressforge/plugin-sdk": "0.1.0"
   },
   "devDependencies": {
     "typescript": "^5.9.0"

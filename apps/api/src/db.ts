@@ -1,6 +1,6 @@
 import type { Env } from './types.ts';
-import type { PluginOptionsStore } from '@cms/core';
-import type { Post, PostStatus, Term, User } from '@cms/core';
+import type { PluginOptionsStore } from '@pressforge/core';
+import type { Post, PostStatus, Term, User } from '@pressforge/core';
 import { hashPassword } from './security.ts';
 
 const newId = () => crypto.randomUUID();

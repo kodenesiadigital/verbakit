@@ -1,4 +1,4 @@
-﻿import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useAuth } from '../auth.tsx';
 
 export function LoginPage() {
@@ -24,7 +24,7 @@ export function LoginPage() {
   return (
     <div className="login-page">
       <form className="login-box" onSubmit={handleSubmit}>
-        <h1>CMS Cloud</h1>
+        <h1>PressForge</h1>
         <p className="sub">Masuk ke dasbor admin</p>
         {error && <div className="wp-notice error">{error}</div>}
         <div>

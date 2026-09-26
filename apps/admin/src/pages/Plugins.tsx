@@ -1,9 +1,9 @@
-﻿import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api.ts';
 import { useAuth } from '../auth.tsx';
 import { Icon } from '../icons.tsx';
-import type { Plugin } from '@cms/core';
+import type { Plugin } from '@pressforge/core';
 
 export function PluginsPage() {
   const { user } = useAuth();
@@ -147,7 +147,7 @@ function AddPluginPanel() {
         </h2>
         <div className="wp-card-body">
           <p>
-            CMS Cloud memuat plugin saat <strong>build</strong>, jadi penambahan plugin dilakukan dengan meletakkan
+            PressForge memuat plugin saat <strong>build</strong>, jadi penambahan plugin dilakukan dengan meletakkan
             folder plugin di <code>plugins/&lt;nama-plugin&gt;</code> lalu menjalankan build ulang.
           </p>
           <ol style={{ paddingLeft: 20, lineHeight: 1.9 }}>
@@ -156,7 +156,7 @@ function AddPluginPanel() {
               <code>manifest.json</code>.
             </li>
             <li>
-              Tulis entry plugin dengan <code>@cms/plugin-sdk</code>:{' '}
+              Tulis entry plugin dengan <code>@pressforge/plugin-sdk</code>:{' '}
               <code>{'export default definePlugin((api) => { ... })'}</code>.
             </li>
             <li>
@@ -166,7 +166,7 @@ function AddPluginPanel() {
           </ol>
           <pre className="code-block">
             <code>{`// plugins/contoh/src/index.ts
-import { definePlugin } from '@cms/plugin-sdk';
+import { definePlugin } from '@pressforge/plugin-sdk';
 
 export default definePlugin((api) => {
   api.addFilter('content.render', (html) => \`\${html}<p>by Contoh</p>\`);

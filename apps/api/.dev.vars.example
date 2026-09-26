@@ -1,4 +1,4 @@
 # Copy to .dev.vars for local secrets. Never commit.
 SESSION_SECRET = "dev-only-secret-change-me"
-ADMIN_EMAIL = "admin@cms.test"
+ADMIN_EMAIL = "admin@pressforge.test"
 ADMIN_PASSWORD = "admin123"

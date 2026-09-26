@@ -1,4 +1,4 @@
-name = "cms-api"
+name = "pressforge-api"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
@@ -17,4 +17,4 @@ binding = "KV"
 id = "00000000000000000000000000000000"
 
 [vars]
-ADMIN_EMAIL = "admin@cms.test"
+ADMIN_EMAIL = "admin@pressforge.test"

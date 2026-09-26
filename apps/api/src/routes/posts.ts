@@ -1,4 +1,4 @@
-import { type Post, type PostStatus } from '@cms/core';
+import { type Post, type PostStatus } from '@pressforge/core';
 import { badRequest, forbidden, json, notFound, readBody } from '../router.ts';
 import {
   bulkUpdatePosts,

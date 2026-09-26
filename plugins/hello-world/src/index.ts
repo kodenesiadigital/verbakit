@@ -1,4 +1,4 @@
-import { definePlugin } from '@cms/plugin-sdk';
+import { definePlugin } from '@pressforge/plugin-sdk';
 
 export default definePlugin((api) => {
   const countKey = 'hello_world_visit_count';

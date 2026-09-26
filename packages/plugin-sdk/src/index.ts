@@ -15,7 +15,7 @@ import type {
   PluginContext,
   PluginOptionsStore,
   PluginRegistration,
-} from '@cms/core';
+} from '@pressforge/core';
 
 export type {
   AdminPageDef,

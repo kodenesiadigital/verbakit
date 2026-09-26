@@ -1,5 +1,5 @@
-﻿{
-  "name": "@cms/api",
+{
+  "name": "@pressforge/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,8 @@
     "db:init": "wrangler d1 execute cms --local --file ./src/schema.sql"
   },
   "dependencies": {
-    "@cms/core": "0.1.0",
-    "@cms/plugin-sdk": "0.1.0"
+    "@pressforge/core": "0.1.0",
+    "@pressforge/plugin-sdk": "0.1.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241127.0",

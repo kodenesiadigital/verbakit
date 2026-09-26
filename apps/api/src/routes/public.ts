@@ -4,7 +4,7 @@ import type { Router } from '../router.ts';
 import { resolveTheme, type Theme } from './themes.ts';
 import type { Env } from '../types.ts';
 import type { PluginManager } from '../plugins/manager.ts';
-import type { Post } from '@cms/core';
+import type { Post } from '@pressforge/core';
 
 function escapeHtml(value: string): string {
   return value
@@ -165,7 +165,7 @@ function layout(theme: Theme, options: { siteName: string; tagline: string }, bo
 </header>
 <nav class="main"><a href="/">Beranda</a><a href="/blog">Blog</a></nav>
 ${body}
-<footer class="site">${esc(options.siteName)} &middot; CMS Cloud &middot; Tema ${esc(theme.name)}</footer>
+<footer class="site">${esc(options.siteName)} &middot; PressForge &middot; Tema ${esc(theme.name)}</footer>
 </body>
 </html>`;
 }
