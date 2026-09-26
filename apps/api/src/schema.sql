@@ -1,0 +1,59 @@
+DROP TABLE IF EXISTS term_relationships;
+DROP TABLE IF EXISTS terms;
+DROP TABLE IF EXISTS meta;
+DROP TABLE IF EXISTS posts;
+DROP TABLE IF EXISTS options;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE users (
+  id            TEXT PRIMARY KEY,
+  username      TEXT NOT NULL UNIQUE,
+  email         TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  role          TEXT NOT NULL DEFAULT 'subscriber',
+  created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+) WITHOUT ROWID;
+
+CREATE TABLE posts (
+  id         TEXT PRIMARY KEY,
+  type       TEXT NOT NULL DEFAULT 'post',
+  title      TEXT NOT NULL DEFAULT '',
+  slug       TEXT NOT NULL,
+  content    TEXT NOT NULL DEFAULT '',
+  excerpt    TEXT NOT NULL DEFAULT '',
+  status     TEXT NOT NULL DEFAULT 'draft',
+  author_id  TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (type, slug)
+) WITHOUT ROWID;
+
+CREATE INDEX idx_posts_type_status ON posts (type, status);
+
+CREATE TABLE meta (
+  post_id TEXT NOT NULL,
+  key     TEXT NOT NULL,
+  value   TEXT NOT NULL DEFAULT '',
+  PRIMARY KEY (post_id, key)
+) WITHOUT ROWID;
+
+CREATE TABLE terms (
+  id        TEXT PRIMARY KEY,
+  kind      TEXT NOT NULL,
+  name      TEXT NOT NULL,
+  slug      TEXT NOT NULL UNIQUE,
+  parent_id TEXT
+) WITHOUT ROWID;
+
+CREATE TABLE term_relationships (
+  post_id TEXT NOT NULL,
+  term_id TEXT NOT NULL,
+  PRIMARY KEY (post_id, term_id)
+) WITHOUT ROWID;
+
+CREATE INDEX idx_relationships_term ON term_relationships (term_id);
+
+CREATE TABLE options (
+  name  TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT ''
+) WITHOUT ROWID;

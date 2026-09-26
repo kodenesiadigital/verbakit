@@ -1,0 +1,28 @@
+{
+  "name": "cms-cloud",
+  "private": true,
+  "version": "0.1.0",
+  "description": "WordPress-like CMS, fully on Cloudflare (Workers + D1 + R2 + KV), plugin-extensible.",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "plugins/*"
+  ],
+  "scripts": {
+    "build:registry": "node scripts/generate-registry.mjs",
+    "build": "npm run build:registry && npm run build -w @cms/api && npm run build -w @cms/admin",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "dev:api": "npm run dev -w @cms/api",
+    "dev:admin": "npm run dev -w @cms/admin"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0"
+  },
+  "allowScripts": {
+    "sharp@0.33.5": true,
+    "esbuild@0.28.1": true,
+    "workerd@1.20260923.1": true,
+    "esbuild@0.21.5": true
+  }
+}

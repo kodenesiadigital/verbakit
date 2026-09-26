@@ -1,0 +1,167 @@
+import { Router, json } from './router.ts';
+import { readSessionToken } from './security.ts';
+import { getSessionCookie } from './routes/auth.ts';
+import { ensureAdminUser } from './routes/auth.ts';
+import { register } from './routes/types.ts';
+import { authRoutes } from './routes/auth.ts';
+import { postRoutes } from './routes/posts.ts';
+import { optionsRoutes } from './routes/options.ts';
+import { pluginsRoutes } from './routes/plugins.ts';
+import { mediaRoutes } from './routes/media.ts';
+import { systemRoutes } from './routes/system.ts';
+import { userRoutes } from './routes/users.ts';
+import { themeRoutes } from './routes/themes.ts';
+import { registerSeoRoutes } from './routes/seo.ts';
+import { registerPublicRoutes, renderErrorPage } from './routes/public.ts';
+import { resolveTheme } from './routes/themes.ts';
+import { getOption } from './db.ts';
+import { text } from './router.ts';
+import { PluginManager } from './plugins/manager.ts';
+import type { Env } from './types.ts';
+import { schemaSql, SCHEMA_VERSION } from './schema.ts';
+
+const SCHEMA_KEY = 'cms:schema:version';
+
+export interface WorkerContext {
+  waitUntil(promise: Promise<unknown>): void;
+}
+
+const PUBLIC_PATHS = new Set<string>([
+  '/api/auth/login',
+  '/api/system/status',
+  '/sitemap.xml',
+  '/robots.txt',
+]);
+
+function isPublic(pathname: string): boolean {
+  if (PUBLIC_PATHS.has(pathname)) return true;
+  // media reads are public
+  if (pathname.startsWith('/api/media/') || pathname === '/api/media') return true;
+  // everything outside /api is the public site (rendered by themes)
+  if (!pathname.startsWith('/api/')) return true;
+  return false;
+}
+
+const managers = new WeakMap<Env, PluginManager>();
+
+/** Executes schema statements one-by-one (robust across D1 bindings). */
+async function applySchema(env: Env): Promise<void> {
+  const statements = schemaSql
+    .split(';')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && !s.startsWith('--'));
+  for (const statement of statements) {
+    await env.DB.prepare(statement).run();
+  }
+}
+
+function getPluginManager(env: Env): PluginManager {
+  let manager = managers.get(env);
+  if (!manager) {
+    manager = new PluginManager(env);
+    managers.set(env, manager);
+  }
+  return manager;
+}
+
+/** Renders the themed 404 page (used when no route matches). */
+async function textPage(
+  url: URL,
+  env: Env,
+  plugins: PluginManager,
+  message: string,
+  status: number,
+): Promise<Response> {
+  const theme = await resolveTheme(env);
+  const siteName = (await getOption(env, 'site_name')) ?? 'My Site';
+  const tagline = (await getOption(env, 'site_tagline')) ?? '';
+  void plugins;
+  return text(
+    renderErrorPage({ theme, siteName, tagline, message, path: url.pathname }),
+    status,
+    'text/html; charset=utf-8',
+  );
+}
+
+function corsHeaders(request: Request): Record<string, string> {
+  const origin = request.headers.get('origin');
+  const allowed = origin ?? '*';
+  return {
+    'access-control-allow-origin': origin ? allowed : '*',
+    'access-control-allow-credentials': 'true',
+    'access-control-allow-methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+    'access-control-allow-headers': 'Content-Type, Authorization',
+    'access-control-max-age': '86400',
+    'strict-transport-security': 'max-age=31536000',
+  };
+}
+
+export default {
+  async fetch(request: Request, env: Env, ctx: WorkerContext): Promise<Response> {
+    const url = new URL(request.url);
+
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders(request) });
+    }
+
+    // Boot: skema + seed (dijalankan ulang bila versi skema berubah).
+    if (env.KV) {
+      const applied = await env.KV.get(SCHEMA_KEY);
+      if (applied !== SCHEMA_VERSION) {
+        await applySchema(env);
+        await ensureAdminUser(env);
+        await env.KV.put(SCHEMA_KEY, SCHEMA_VERSION);
+      }
+    }
+
+    const router = new Router();
+    register(router, [
+      ...authRoutes,
+      ...postRoutes,
+      ...optionsRoutes,
+      ...pluginsRoutes,
+      ...mediaRoutes,
+      ...systemRoutes,
+      ...userRoutes,
+      ...themeRoutes,
+    ]);
+    registerSeoRoutes(router, env, getPluginManager(env));
+    // Public site rendering (themes) — registered last so /api/* wins.
+    registerPublicRoutes(router, env, getPluginManager(env));
+
+    const matched = router.match(request.method, url);
+    if (!matched) {
+      return textPage(url, env, getPluginManager(env), 'Halaman tidak ditemukan', 404);
+    }
+
+    const { handler, params } = matched;
+
+    // Auth gate for non-public API routes.
+    const session = await readSessionToken(env.SESSION_SECRET, getSessionCookie(request));
+    if (!isPublic(url.pathname)) {
+      if (!session) {
+        return json({ error: 'Silakan login terlebih dahulu' }, 401);
+      }
+    }
+
+    const args = {
+      request,
+      url,
+      params,
+      body: null,
+      env,
+      user: session,
+      plugins: getPluginManager(env),
+    };
+
+    const response = await handler(args);
+    const headers = new Headers(response.headers);
+    for (const [key, value] of Object.entries(corsHeaders(request))) {
+      headers.set(key, value);
+    }
+    if (!response.headers.has('content-type') && url.pathname.startsWith('/api/')) {
+      headers.set('content-type', 'application/json; charset=utf-8');
+    }
+    return new Response(response.body, { status: response.status, headers });
+  },
+};

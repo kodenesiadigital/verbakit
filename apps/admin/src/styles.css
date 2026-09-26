@@ -1,0 +1,1224 @@
+﻿:root {
+  --wp-blue: #2271b1;
+  --wp-blue-dark: #135e96;
+  --wp-admin-bg: #f0f0f1;
+  --wp-border: #c3c4c7;
+  --wp-border-light: #dcdcde;
+  --wp-text: #3c434a;
+  --wp-muted: #646970;
+  --wp-green: #00a32a;
+  --wp-red: #d63638;
+  --wp-orange: #dba617;
+  --wp-sidebar: #1d2327;
+  --wp-radius: 3px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+    'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  line-height: 1.4em;
+  color: var(--wp-text);
+  background: var(--wp-admin-bg);
+}
+
+a {
+  color: var(--wp-blue);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--wp-blue-dark);
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 400;
+}
+
+/* ---------- Layout ala WordPress: menu kiri + admin bar ---------- */
+.wp-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.wp-sidebar {
+  width: 160px;
+  flex-shrink: 0;
+  background: var(--wp-sidebar);
+  color: #c3c4c7;
+  font-size: 14px;
+  padding-bottom: 20px;
+  overflow: visible;
+}
+
+.wp-sidebar .site-switcher {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  color: #fff;
+  border-bottom: 1px solid #2c3338;
+  font-size: 13px;
+}
+
+.wp-sidebar .site-switcher .badge-site {
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  background: var(--wp-blue);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.wp-menu {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+}
+
+/* Link menu utama berada di dalam .wp-menu-row (ada tombol chevron untuk
+   submenu), jadi selector harus menyertakan pembungkus tersebut. */
+.wp-menu > li > a,
+.wp-menu > li > .wp-menu-row > a,
+.wp-menu-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  color: #c3c4c7;
+  line-height: 1.4;
+  text-decoration: none;
+}
+
+.wp-menu > li > a:hover,
+.wp-menu > li > .wp-menu-row > a:hover {
+  background: #2c3338;
+  color: #72aee6;
+  text-decoration: none;
+}
+
+.wp-icon {
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.wp-menu-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wp-count {
+  margin-left: auto;
+  background: #0f1a23;
+  color: #a7aaad;
+  border-radius: 9px;
+  padding: 0 7px;
+  font-size: 11px;
+  line-height: 17px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.wp-menu > li.wp-current > a,
+.wp-menu > li.wp-current > .wp-menu-row > a,
+.wp-menu .wp-current {
+  background: var(--wp-blue);
+  color: #fff;
+  font-weight: 600;
+}
+
+.wp-menu > li.wp-current > a .wp-count,
+.wp-menu > li.wp-current > .wp-menu-row > a .wp-count,
+.wp-menu .wp-current .wp-count {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.wp-menu > li.wp-current > a .wp-icon,
+.wp-menu > li.wp-current > .wp-menu-row > a .wp-icon,
+.wp-menu .wp-current .wp-icon,
+.wp-menu-heading .wp-icon {
+  opacity: 1;
+}
+
+/* Submenu: flyout ke kanan ala WordPress (tidak menggeser layout, tanpa
+   animasi max-height supaya klik pertama selalu kena). */
+.wp-menu > li {
+  position: relative;
+}
+
+.wp-menu .wp-submenu {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  min-width: 190px;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  background: #161b22;
+  border-left: 1px solid #2c3338;
+  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.35);
+  display: none;
+  z-index: 30;
+}
+
+/* Hanya hover (atau fokus keyboard via kelas .is-open) yang membuka submenu.
+   :focus-within sengaja tidak dipakai — link yang diklik tetap fokus sehingga
+   submenu lama tidak mau tertutup dan menumpuk dengan submenu berikutnya. */
+.wp-menu > li:hover > .wp-submenu,
+.wp-menu > li.is-open > .wp-submenu {
+  display: block;
+}
+
+.wp-menu .wp-submenu a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 8px 14px;
+  color: #a7aaad;
+  font-size: 13px;
+  border-left: 3px solid transparent;
+  white-space: nowrap;
+}
+
+.wp-menu .wp-submenu a:hover {
+  background: #2c3338;
+  color: #72aee6;
+  text-decoration: none;
+}
+
+.wp-menu .wp-submenu .wp-current {
+  background: #2c3338;
+  border-left-color: #72aee6;
+  color: #fff;
+}
+
+/* Sidebar collapsed: label disembunyikan, submenu tetap muncul saat hover */
+.wp-shell.menu-collapsed .wp-sidebar,
+.wp-sidebar.collapsed {
+  width: 40px;
+}
+
+.wp-shell.menu-collapsed .wp-menu-label,
+.wp-shell.menu-collapsed .wp-count,
+.wp-shell.menu-collapsed .site-name {
+  display: none;
+}
+
+.wp-shell.menu-collapsed .wp-submenu a .wp-menu-label {
+  display: inline;
+}
+
+.wp-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wp-adminbar {
+  height: 32px;
+  background: #1d2327;
+  color: #f0f0f1;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 14px;
+  font-size: 13px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.wp-adminbar a {
+  color: #f0f0f1;
+}
+
+@media (max-width: 960px) {
+  /* Spesifisitas harus lebih tinggi dari `.ab-link { display: inline-flex }`
+     yang dideklarasikan setelah blok ini. */
+  .wp-adminbar .ab-hide-sm {
+    display: none;
+  }
+}
+
+/* ---------- Layar kecil: drawer menu ala WordPress ---------- */
+.wp-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  z-index: 45;
+}
+
+.wp-backdrop.is-open {
+  display: block;
+}
+
+.sidebar-close {
+  display: none;
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #c3c4c7;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Burger hanya untuk layar kecil; spesifisitas .wp-adminbar agar tidak
+   ditimpa aturan dasar `.ab-toggle { display: inline-flex }`. */
+.wp-adminbar .ab-burger {
+  display: none;
+}
+
+.wp-menu-row {
+  display: flex;
+  align-items: stretch;
+}
+
+.wp-menu-row > a {
+  flex: 1;
+  min-width: 0;
+}
+
+.wp-submenu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: #8c8f94;
+  cursor: pointer;
+  padding: 0 10px;
+  align-items: center;
+  border-radius: 0;
+}
+
+.wp-submenu-toggle:hover {
+  color: #72aee6;
+  background: #2c3338;
+}
+
+.wp-submenu-toggle .wp-icon {
+  transform: rotate(90deg);
+  transition: transform 0.15s ease;
+}
+
+.wp-menu > li.is-open > .wp-submenu-toggle .wp-icon {
+  transform: rotate(-90deg);
+}
+
+@media (max-width: 782px) {
+  .wp-shell {
+    display: block;
+  }
+
+  /* Sidebar jadi drawer */
+  .wp-sidebar,
+  .wp-shell.menu-collapsed .wp-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 240px;
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    overflow-y: auto;
+    padding-bottom: 40px;
+  }
+
+  /* Spesifisitas harus mengalahkan `.wp-shell.menu-collapsed .wp-sidebar`
+     yang juga menapply pada elemen ini. */
+  .wp-sidebar.mobile-open,
+  .wp-shell.menu-collapsed .wp-sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.4);
+  }
+
+  .sidebar-close {
+    display: inline-flex;
+  }
+
+  /* Tampilkan label & submenu di dalam drawer (tidak ada hover di perangkat sentuh) */
+  .wp-shell.menu-collapsed .wp-menu-label,
+  .wp-shell.menu-collapsed .wp-count,
+  .wp-shell.menu-collapsed .site-name {
+    display: inline;
+  }
+
+  .wp-menu .wp-submenu {
+    position: static;
+    display: none;
+    box-shadow: none;
+    border-left: none;
+    background: #161b22;
+    min-width: 0;
+  }
+
+  .wp-menu > li:hover > .wp-submenu,
+  .wp-menu > li:focus-within > .wp-submenu,
+  .wp-menu > li.is-open > .wp-submenu {
+    display: block;
+  }
+
+  .wp-menu .wp-submenu a {
+    padding-left: 34px;
+    white-space: normal;
+  }
+
+  /* Hanya satu tombol menu di layar kecil. Spesifisitas `.wp-adminbar .x`
+     diperlukan karena aturan dasar `.ab-toggle { display: inline-flex }`
+     dideklarasikan setelah blok ini. */
+  .wp-adminbar .ab-burger {
+    display: inline-flex;
+  }
+
+  .wp-adminbar .ab-collapse {
+    display: none;
+  }
+
+  .wp-adminbar {
+    position: sticky;
+    top: 0;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  /* Judul bagian boleh dipotong, bukan memaksa bar melebar */
+  .wp-adminbar .ab-section {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Label "Beranda situs" disembunyikan, ikonnya tetap */
+  .wp-adminbar .ab-label {
+    display: none;
+  }
+
+  .wp-wrap {
+    padding: 14px 12px 30px;
+  }
+
+  .wp-page-title h1 {
+    font-size: 19px;
+  }
+
+  /* Tabel boleh digeser horizontal, tidak memotong layout */
+  table.wp-list {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .wp-editor-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wp-dashboard-columns {
+    grid-template-columns: 1fr;
+  }
+
+  .row-actions-inline {
+    visibility: visible;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .wp-inline-fields {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.wp-adminbar .sep {
+  color: #646970;
+}
+
+.wp-adminbar .right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.ab-toggle,
+.ab-avatar {
+  background: transparent;
+  border: none;
+  color: #f0f0f1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 3px;
+}
+
+.ab-toggle:hover,
+.ab-avatar:hover {
+  background: #2c3338;
+}
+
+.ab-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--wp-blue);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0;
+}
+
+.ab-menu {
+  position: absolute;
+  top: 34px;
+  right: 0;
+  min-width: 220px;
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.14);
+  padding: 6px 0;
+  z-index: 40;
+}
+
+.ab-menu-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--wp-border-light);
+  margin-bottom: 6px;
+}
+
+.ab-menu .avatar-lg {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--wp-blue);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+}
+
+.ab-menu a,
+.ab-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  color: var(--wp-text);
+  text-align: left;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.ab-menu a:hover,
+.ab-menu button:hover {
+  background: #f0f6fc;
+  color: var(--wp-blue);
+}
+
+.ab-section {
+  text-transform: capitalize;
+}
+
+.ab-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Footer ala WordPress */
+.wp-footer {
+  text-align: center;
+  padding: 24px 0 8px;
+  color: var(--wp-muted);
+  font-size: 12px;
+}
+
+.wp-footer p {
+  margin: 2px 0;
+}
+
+.wp-adminbar .avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--wp-blue);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wp-wrap {
+  padding: 20px 24px 40px;
+  max-width: 1080px;
+  width: 100%;
+}
+
+.wp-page-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.wp-page-title h1 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 400;
+  padding: 9px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wp-adminbar .ab-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wp-page-title .heading-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Cards & tabel ala WP ---------- */
+.wp-card {
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+  margin-bottom: 16px;
+}
+
+.wp-card > h2,
+.wp-card > .wp-card-title {
+  margin: 0;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--wp-border-light);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wp-card-body {
+  padding: 12px;
+}
+
+.wp-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--wp-border);
+  background: #fff;
+  padding: 0 12px;
+  gap: 2px;
+}
+
+.wp-tabs a {
+  padding: 10px 12px;
+  color: var(--wp-text);
+  border-bottom: 2px solid transparent;
+}
+
+.wp-tabs a.active {
+  border-bottom-color: var(--wp-blue);
+  color: var(--wp-blue);
+  font-weight: 600;
+}
+
+table.wp-list {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border: 1px solid var(--wp-border);
+}
+
+table.wp-list th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--wp-muted);
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--wp-border);
+  background: #f6f7f7;
+}
+
+table.wp-list td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f1;
+  vertical-align: middle;
+}
+
+table.wp-list tr:hover td {
+  background: #f6f7f7;
+}
+
+.wp-row-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  font-size: 12px;
+}
+
+.wp-row-actions a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wp-row-actions .trash a {
+  color: var(--wp-red);
+}
+
+.wp-row-actions span a {
+  color: var(--wp-blue);
+}
+
+.column-thumbnail {
+  width: 60px;
+}
+
+img.wp-thumb {
+  max-width: 56px;
+  max-height: 56px;
+  border-radius: 2px;
+  border: 1px solid var(--wp-border-light);
+  display: block;
+}
+
+/* ---------- Tombol ala WP ---------- */
+.wp-btn {
+  display: inline-block;
+  background: #f6f7f7;
+  color: #2271b1;
+  border: 1px solid var(--wp-blue);
+  border-radius: var(--wp-radius);
+  padding: 3px 12px;
+  font-size: 13px;
+  line-height: 2;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.wp-btn:hover {
+  background: #f0f6fc;
+  color: #135e96;
+  text-decoration: none;
+}
+
+.wp-btn.primary {
+  background: var(--wp-blue);
+  border-color: var(--wp-blue);
+  color: #fff;
+}
+
+.wp-btn.primary:hover {
+  background: var(--wp-blue-dark);
+  color: #fff;
+}
+
+.wp-btn.danger {
+  border-color: var(--wp-red);
+  color: var(--wp-red);
+}
+
+.wp-btn.danger:hover {
+  background: #fcf0f1;
+}
+
+.wp-btn[disabled] {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.wp-btn.large {
+  padding: 6px 16px;
+  font-size: 14px;
+  line-height: 2.2;
+}
+
+/* ---------- Badge status ala WP ---------- */
+.wp-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+  background: var(--wp-muted);
+}
+
+.wp-badge.publish,
+.wp-badge.active,
+.wp-badge.admin {
+  background: var(--wp-green);
+}
+
+.wp-badge.draft,
+.wp-badge.inactive,
+.wp-badge.subscriber {
+  background: #949494;
+}
+
+.wp-badge.trash {
+  background: var(--wp-red);
+}
+
+.wp-badge.editor,
+.wp-badge.author {
+  background: #996800;
+}
+
+.wp-badge.pending {
+  background: var(--wp-orange);
+}
+
+/* ---------- Form ala WP ---------- */
+.wp-form-row {
+  margin-bottom: 16px;
+}
+
+.wp-form-row label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.wp-form-row input[type='text'],
+.wp-form-row input[type='search'],
+.wp-form-row input[type='email'],
+.wp-form-row input[type='url'],
+.wp-form-row input[type='password'],
+.wp-form-row input[type='number'],
+.wp-form-row input[type='date'],
+.wp-form-row select {
+  width: 100%;
+  max-width: 640px;
+  /* Tinggi seragam agar input, select, dan tombol sejajar */
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid #8c8f94;
+  border-radius: var(--wp-radius);
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: var(--wp-text);
+}
+
+.wp-form-row textarea {
+  width: 100%;
+  max-width: 640px;
+  padding: 8px;
+  border: 1px solid #8c8f94;
+  border-radius: var(--wp-radius);
+  font-size: 14px;
+  font-family: inherit;
+  background: #fff;
+  color: var(--wp-text);
+  min-height: 220px;
+  line-height: 1.6;
+  font-family: Consolas, Monaco, monospace;
+}
+
+.wp-form-row .description {
+  color: var(--wp-muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.wp-inline-fields {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+/* ---------- Bulk actions bar ala WordPress ---------- */
+.wp-bulkbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid var(--wp-blue);
+  border-left-width: 4px;
+  padding: 8px 12px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+
+.wp-bulkbar select {
+  width: auto;
+  min-width: 190px;
+}
+
+.wp-bulk-error {
+  color: var(--wp-red);
+  font-size: 12px;
+}
+
+.wp-row-selected td {
+  background: #f0f6fc;
+}
+
+/* ---------- Row actions inlin ---------- */
+.row-actions-inline {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  font-size: 12px;
+  visibility: hidden;
+}
+
+tr:hover .row-actions-inline,
+tr:focus-within .row-actions-inline {
+  visibility: visible;
+}
+
+.linklike {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--wp-blue);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.linklike:hover {
+  color: var(--wp-blue-dark);
+  text-decoration: underline;
+}
+
+.linklike.danger {
+  color: var(--wp-red);
+}
+
+/* ---------- Quick edit ---------- */
+.wp-quickedit {
+  margin-top: 10px;
+  padding: 12px;
+  background: #f6f7f7;
+  border: 1px solid var(--wp-border);
+  border-left: 4px solid var(--wp-blue);
+}
+
+/* ---------- Publish box ala WordPress ---------- */
+.wp-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .wp-editor-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wp-publishbox {
+  background: #fff;
+  border: 1px solid var(--wp-border);
+}
+
+.wp-publishbox .pb-head {
+  border-bottom: 1px solid var(--wp-border-light);
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.wp-publishbox .pb-body {
+  padding: 12px;
+}
+
+.pb-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f1;
+}
+
+.pb-row:last-of-type {
+  border-bottom: none;
+}
+
+.pb-row .label {
+  color: var(--wp-muted);
+}
+
+.pb-row .value {
+  font-weight: 600;
+  text-align: right;
+  word-break: break-all;
+}
+
+.permalink-box {
+  font-family: Consolas, Monaco, monospace;
+  font-size: 12px;
+  background: #f6f7f7;
+  border: 1px solid var(--wp-border-light);
+  padding: 8px;
+  word-break: break-all;
+}
+
+.pb-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.revisions-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.revisions-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f1;
+  font-size: 13px;
+}
+/* ---------- Permalink & code block ---------- */
+.permalink-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--wp-border-light);
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-weight: 400;
+  max-width: 520px;
+}
+
+.permalink-choice:hover {
+  background: #f6f7f7;
+}
+
+.permalink-choice .pc-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.code-block {
+  background: #1d2327;
+  color: #e2e4e7;
+  padding: 14px;
+  overflow-x: auto;
+  font-size: 12px;
+  line-height: 1.6;
+  border-radius: var(--wp-radius);
+}
+
+.code-block code {
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+/* ---------- Notifikasi ---------- */
+.wp-notice {
+  padding: 10px 12px;
+  border-left: 4px solid var(--wp-blue);
+  background: #fff;
+  border-top: 1px solid var(--wp-border);
+  border-right: 1px solid var(--wp-border);
+  border-bottom: 1px solid var(--wp-border);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+  margin: 16px 0;
+}
+
+.wp-notice.success {
+  border-left-color: var(--wp-green);
+}
+
+.wp-notice.error {
+  border-left-color: var(--wp-red);
+}
+
+.wp-empty {
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  border-style: dashed;
+  padding: 32px;
+  text-align: center;
+  color: var(--wp-muted);
+}
+
+/* ---------- Dashboard widgets ala WP ---------- */
+.wp-dashboard-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.wp-widget {
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.wp-widget h2 {
+  margin: 0;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--wp-border-light);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wp-widget .wp-widget-body {
+  padding: 12px;
+}
+
+.wp-widget ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.wp-stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f1;
+}
+
+.wp-stat-row:last-child {
+  border-bottom: none;
+}
+
+.wp-stat-row .value {
+  font-weight: 600;
+}
+
+/* ---------- Login ---------- */
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: #f0f0f1;
+}
+
+.login-box {
+  width: 320px;
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  padding: 26px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.login-box h1 {
+  margin: 0 0 2px;
+  font-size: 20px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.login-box p.sub {
+  margin: 0 0 16px;
+  text-align: center;
+  color: var(--wp-muted);
+  font-size: 12px;
+}
+
+.login-box .wp-btn {
+  width: 100%;
+  text-align: center;
+  line-height: 2.4;
+}
+
+.login-box label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid #8c8f94;
+  border-radius: var(--wp-radius);
+  font-size: 14px;
+  margin-bottom: 14px;
+  font-family: inherit;
+}
+
+/* ---------- Plugin page ---------- */
+.plugin-page {
+  background: #fff;
+  border: 1px solid var(--wp-border);
+  padding: 16px;
+}
+
+.plugin-page h2 {
+  margin-top: 0;
+}
+
+.muted {
+  color: var(--wp-muted);
+}
+
+.mono {
+  font-family: Consolas, Monaco, monospace;
+  font-size: 12px;
+}
+
+code {
+  background: #f0f0f1;
+  padding: 1px 5px;
+  border-radius: 2px;
+  font-size: 12px;
+}
+
+.flag-active {
+  color: var(--wp-green);
+  font-weight: 600;
+}

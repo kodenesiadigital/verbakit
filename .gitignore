@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.dev.vars
+.wrangler/
+wrangler/state
+*.log
+.DS_Store
+.worker-status
+*.tsbuildinfo
+.cookies.txt
+.env
+.env.*
