@@ -424,6 +424,11 @@ export async function setUserPasswordHash(env: Env, id: string, passwordHash: st
   await env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?').bind(passwordHash, id).run();
 }
 
+export async function invalidatePasswordResetToken(env: Env, token: string): Promise<void> {
+  const tokenHash = await sha256Hex(token);
+  await env.DB.prepare('DELETE FROM password_resets WHERE token = ?').bind(tokenHash).run();
+}
+
 const RESET_TTL_MINUTES = 30;
 
 export async function createPasswordResetToken(env: Env, userId: string): Promise<string> {
@@ -455,17 +460,6 @@ export async function consumePasswordResetToken(env: Env, token: string): Promis
 async function sha256Hex(value: string): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
   return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
-}
-
-/**
- * Pengiriman tautan reset password.
- *
- * Belum ada penyedia email yang dikonfigurasi, jadi tautan dicatat di log
- * Worker. Saat produksi, ganti isi fungsi ini dengan pemanggilan API mailer
- * (mis. Resend/Postmark) — bagian lain tidak perlu berubah.
- */
-export async function sendPasswordResetLink(email: string, link: string): Promise<void> {
-  console.log(`[auth] tautan reset password untuk ${email}: ${link}`);
 }
 
 export async function getTerms(env: Env, kind?: string): Promise<Term[]> {

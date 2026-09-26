@@ -5,13 +5,18 @@ import {
   hashPassword,
   verifyPassword,
 } from '../security.ts';
-import { checkRateLimit, clearRateLimit, clientKey } from '../rate-limit.ts';
+import {
+  checkRateLimit,
+  clearRateLimit,
+  clientKey,
+} from '../rate-limit.ts';
+import { getMailer, sendPasswordResetEmail } from '../mailer.ts';
 import {
   consumePasswordResetToken,
   countUsers,
   createPasswordResetToken,
   getOption,
-  sendPasswordResetLink,
+  invalidatePasswordResetToken,
   setOption,
   setUserPasswordHash,
 } from '../db.ts';
@@ -174,7 +179,14 @@ export const authRoutes: RouteDef[] = [
 
       const token = await createPasswordResetToken(env, user.id);
       const link = `${new URL(request.url).origin}/admin/reset?token=${token}`;
-      await sendPasswordResetLink(user.email, link);
+      try {
+        await sendPasswordResetEmail(getMailer(env), user.email, link);
+      } catch (error) {
+        // Jangan sampai token menggantung bila email gagal terkirim.
+        await invalidatePasswordResetToken(env, token);
+        console.error(`[auth] gagal mengirim email reset ke ${user.email}:`, error);
+        return json({ error: 'Email tidak dapat dikirim. Coba lagi nanti.' }, 502);
+      }
       return json({ ok: true });
     },
   },

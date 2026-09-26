@@ -96,6 +96,12 @@ const MENU: MenuDef[] = [
     ],
   },
   {
+    to: '/profil',
+    label: 'Profil Saya',
+    icon: 'users',
+    submenu: [{ to: '/profil', label: 'Edit Profil', icon: 'edit' }],
+  },
+  {
     to: '/settings',
     label: 'Pengaturan',
     icon: 'settings',
@@ -414,8 +420,8 @@ export function AdminBar() {
                 <div className="muted">{user?.email}</div>
               </div>
             </div>
-            <a href={adminUrl('/settings')} onClick={() => setMenuOpen(false)}>
-              <Icon name="settings" size={16} /> Profil
+            <a href={adminUrl('/profil')} onClick={() => setMenuOpen(false)}>
+              <Icon name="users" size={16} /> Profil Saya
             </a>
             <a href={adminUrl('/')} onClick={() => setMenuOpen(false)}>
               <Icon name="dashboard" size={16} /> Dasbor

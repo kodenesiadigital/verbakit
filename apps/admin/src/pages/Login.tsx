@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useAuth } from '../auth.tsx';
+import { adminUrl } from '../site.ts';
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -49,6 +50,11 @@ export function LoginPage() {
         <button className="wp-btn primary" type="submit" disabled={busy}>
           {busy ? 'Memproses…' : 'Masuk'}
         </button>
+        <div style={{ marginTop: 14, textAlign: 'center' }}>
+          <a href={adminUrl('/lupa-password')} style={{ fontSize: 13 }}>
+            Lupa password?
+          </a>
+        </div>
       </form>
     </div>
   );

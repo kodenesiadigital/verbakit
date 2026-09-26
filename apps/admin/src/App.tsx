@@ -1,6 +1,6 @@
 import { adminUrl } from './site.ts';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './auth.tsx';
 import { LoginPage } from './pages/Login.tsx';
 import { DashboardPage } from './pages/Dashboard.tsx';
@@ -12,6 +12,9 @@ import { PluginPage } from './pages/PluginPage.tsx';
 import { UsersPage } from './pages/Users.tsx';
 import { ThemesPage } from './pages/Themes.tsx';
 import { SettingsPage } from './pages/Settings.tsx';
+import { ForgotPasswordPage } from './pages/ForgotPassword.tsx';
+import { ResetPasswordPage } from './pages/ResetPassword.tsx';
+import { ProfilePage } from './pages/Profile.tsx';
 import { IconGalleryPage } from './pages/IconGallery.tsx';
 import { api } from './api.ts';
 import { Icon } from './icons.tsx';
@@ -100,8 +103,14 @@ function Page({
 
 export function App() {
   const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) return <div className="login-page">Memuat…</div>;
+
+  // Halaman ini harus bisa diakses tanpa sesi.
+  if (location.pathname === '/lupa-password') return <ForgotPasswordPage />;
+  if (location.pathname === '/reset') return <ResetPasswordPage />;
+
   if (!user) return <LoginPage />;
 
   return (
@@ -152,6 +161,7 @@ export function App() {
         <Route path="/users" element={<Page title="Pengguna" icon="users"><UsersPage /></Page>} />
         <Route path="/themes" element={<Page title="Tampilan" icon="appearance"><ThemesPage /></Page>} />
         <Route path="/settings" element={<Page title="Pengaturan" icon="settings"><SettingsPage /></Page>} />
+        <Route path="/profil" element={<Page title="Profil" icon="users"><ProfilePage /></Page>} />
         {import.meta.env.DEV && (
           <Route path="/dev/icons" element={<Page title="Ikon" icon="star"><IconGalleryPage /></Page>} />
         )}
