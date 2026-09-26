@@ -2,7 +2,7 @@
  * DDL idempotent (aman dijalankan berulang). Dijalankan otomatis saat boot
  * Worker bila versi skema di KV berbeda.
  */
-export const SCHEMA_VERSION = '3';
+export const SCHEMA_VERSION = '4';
 
 export const schemaSql = `
 CREATE TABLE IF NOT EXISTS users (
@@ -71,4 +71,13 @@ CREATE TABLE IF NOT EXISTS revisions (
 ) WITHOUT ROWID;
 
 CREATE INDEX IF NOT EXISTS idx_revisions_post ON revisions (post_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS password_resets (
+  token      TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+) WITHOUT ROWID;
+
+CREATE INDEX IF NOT EXISTS idx_password_resets_user ON password_resets (user_id);
 `;

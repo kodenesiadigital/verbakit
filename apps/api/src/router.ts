@@ -93,10 +93,10 @@ export class Router {
   }
 }
 
-export function json(data: unknown, status = 200): Response {
+export function json(data: unknown, status = 200, extraHeaders: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { 'content-type': 'application/json; charset=utf-8' },
+    headers: { 'content-type': 'application/json; charset=utf-8', ...extraHeaders },
   });
 }
 

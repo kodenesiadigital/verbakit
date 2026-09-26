@@ -28,6 +28,9 @@ export interface WorkerContext {
 
 const PUBLIC_PATHS = new Set<string>([
   '/api/auth/login',
+  // Dipakai tanpa sesi: memang tujuannya menjangkau pengguna yang belum login.
+  '/api/auth/forgot-password',
+  '/api/auth/reset-password',
   '/api/system/status',
   '/sitemap.xml',
   '/robots.txt',
@@ -145,6 +148,21 @@ function corsHeaders(request: Request): Record<string, string> {
   };
 }
 
+/**
+ * Proteksi CSRF sederhana: request yang mengubah state harus datang dari origin
+ * yang sama. Origin yang tidak ada (curl, SSR, tool server-to-server) diizinkan
+ * — browser moderne selalu mengirim Origin untuk POST lintas situs, jadi ini
+ * tetap menutup serangan CSRF dari situs lain.
+ */
+const STATE_CHANGING = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
+
+function originAllowed(request: Request, url: URL): boolean {
+  if (!STATE_CHANGING.has(request.method.toUpperCase())) return true;
+  const origin = request.headers.get('origin');
+  if (!origin) return true;
+  return origin === url.origin;
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx: WorkerContext): Promise<Response> {
     const url = new URL(request.url);
@@ -189,6 +207,10 @@ export default {
     }
 
     const { handler, params } = matched;
+
+    if (!originAllowed(request, url)) {
+      return json({ error: 'Origin tidak diizinkan' }, 403);
+    }
 
     // Auth gate for non-public API routes.
     const session = await readSessionToken(env.SESSION_SECRET, getSessionCookie(request));

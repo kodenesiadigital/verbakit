@@ -420,6 +420,54 @@ export async function deleteUser(env: Env, id: string): Promise<boolean> {
   return true;
 }
 
+export async function setUserPasswordHash(env: Env, id: string, passwordHash: string): Promise<void> {
+  await env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?').bind(passwordHash, id).run();
+}
+
+const RESET_TTL_MINUTES = 30;
+
+export async function createPasswordResetToken(env: Env, userId: string): Promise<string> {
+  // Token acak 256-bit; yang disimpan hanya hash-nya.
+  const raw = crypto.getRandomValues(new Uint8Array(32));
+  const token = [...raw].map((b) => b.toString(16).padStart(2, '0')).join('');
+  const tokenHash = await sha256Hex(token);
+  const expiresAt = new Date(Date.now() + RESET_TTL_MINUTES * 60 * 1000).toISOString();
+
+  await env.DB.prepare('DELETE FROM password_resets WHERE user_id = ?').bind(userId).run();
+  await env.DB.prepare('INSERT INTO password_resets (token, user_id, expires_at) VALUES (?, ?, ?)')
+    .bind(tokenHash, userId, expiresAt)
+    .run();
+  return token;
+}
+
+/** Konsumsi token reset sekali pakai. Mengembalikan userId bila valid. */
+export async function consumePasswordResetToken(env: Env, token: string): Promise<string | null> {
+  const tokenHash = await sha256Hex(token);
+  const row = await env.DB.prepare('SELECT user_id, expires_at FROM password_resets WHERE token = ?')
+    .bind(tokenHash)
+    .first<{ user_id: string; expires_at: string }>();
+  if (!row) return null;
+  await env.DB.prepare('DELETE FROM password_resets WHERE token = ?').bind(tokenHash).run();
+  if (new Date(row.expires_at).getTime() < Date.now()) return null;
+  return row.user_id;
+}
+
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Pengiriman tautan reset password.
+ *
+ * Belum ada penyedia email yang dikonfigurasi, jadi tautan dicatat di log
+ * Worker. Saat produksi, ganti isi fungsi ini dengan pemanggilan API mailer
+ * (mis. Resend/Postmark) — bagian lain tidak perlu berubah.
+ */
+export async function sendPasswordResetLink(email: string, link: string): Promise<void> {
+  console.log(`[auth] tautan reset password untuk ${email}: ${link}`);
+}
+
 export async function getTerms(env: Env, kind?: string): Promise<Term[]> {
   const where = kind ? ' WHERE kind = ?' : '';
   const { results } = await env.DB.prepare(`SELECT * FROM terms${where}`)

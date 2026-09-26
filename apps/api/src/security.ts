@@ -88,12 +88,30 @@ export interface SessionInfo {
   cookie: string;
 }
 
-export function buildSessionCookie(token: string, maxAgeSeconds = 60 * 60 * 24 * 7): string {
-  return `${SESSION_COOKIE}=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${maxAgeSeconds}`;
+/** Deteksi apakah request datang lewat HTTPS (di belakang Cloudflare pun detectable). */
+export function isSecureRequest(request: Request): boolean {
+  try {
+    if (new URL(request.url).protocol === 'https:') return true;
+  } catch {
+    /* abaikan, fallback ke header */
+  }
+  return (request.headers.get('x-forwarded-proto') ?? '').split(',')[0]?.trim() === 'https';
 }
 
-export function expireSessionCookie(): string {
-  return `${SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
+function cookieFlags(request: Request): string {
+  return isSecureRequest(request) ? 'HttpOnly; Secure; SameSite=Lax' : 'HttpOnly; SameSite=Lax';
+}
+
+export function buildSessionCookie(
+  request: Request,
+  token: string,
+  maxAgeSeconds = 60 * 60 * 24 * 7,
+): string {
+  return `${SESSION_COOKIE}=${token}; Path=/; ${cookieFlags(request)}; Max-Age=${maxAgeSeconds}`;
+}
+
+export function expireSessionCookie(request: Request): string {
+  return `${SESSION_COOKIE}=; Path=/; ${cookieFlags(request)}; Max-Age=0`;
 }
 
 const PBKDF2_ITERATIONS = 100_000;
