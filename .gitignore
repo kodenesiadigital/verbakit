@@ -1,12 +1,55 @@
+# ---------- Dependencies ----------
 node_modules/
+.pnp
+.pnp.js
+
+# ---------- Build output ----------
 dist/
-.dev.vars
-.wrangler/
-wrangler/state
-*.log
-.DS_Store
-.worker-status
+build/
+out/
 *.tsbuildinfo
-.cookies.txt
+
+# ---------- Secrets (JANGAN pernah di-commit) ----------
+# Hanya .dev.vars yang diabaikan; .dev.vars.example (tanpa nilai rahasia)
+# sengaja ikut commit sebagai template.
 .env
 .env.*
+!.env.example
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+*.pem
+*.key
+
+# ---------- Cloudflare / Wrangler ----------
+.wrangler/
+wrangler/state/
+worker-status/
+*.worker-status
+
+# ---------- Database lokal (D1 & KV SQLite) ----------
+*.sqlite
+*.sqlite3
+*.sqlite-shm
+*.sqlite-wal
+
+# ---------- Log & cache ----------
+*.log
+npm-debug.log*
+yarn-error.log*
+.cache/
+.vite/
+
+# ---------- Test & coverage ----------
+coverage/
+.nyc_output/
+
+# ---------- Editor / OS ----------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# ---------- Artefak lokal ----------
+.cookies.txt
