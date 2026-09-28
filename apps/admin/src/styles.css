@@ -411,6 +411,13 @@ h3 {
     display: block;
   }
 
+  /* Tombol chevron adalah satu-satunya cara membuka submenu di layar sentuh,
+     karena :hover hanya berlaku sesaat dan :focus-within hilang begitu menu
+     induk berpindah halaman. Tanpa ini submenu praktis tidak bisa dibuka. */
+  .wp-submenu-toggle {
+    display: inline-flex;
+  }
+
   .wp-menu .wp-submenu a {
     padding-left: 34px;
     white-space: normal;
