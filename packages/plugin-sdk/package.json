@@ -37,6 +37,7 @@
     "url": "https://github.com/verbakit/verbakit/issues"
   },
   "author": {
-    "name": "prorstun"
-  }
+    "name": "verbakit"
+  },
+  "private": true
 }
