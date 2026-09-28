@@ -1,6 +1,6 @@
 {
   "name": "@kodenesiadigital/verbakit-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Registry action/filter, plugin loader, dan tipe bersama untuk Verbakit.",
   "license": "AGPL-3.0-or-later",
   "homepage": "https://verbakit.my.id",
