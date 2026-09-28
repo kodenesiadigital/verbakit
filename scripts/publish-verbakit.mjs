@@ -39,9 +39,13 @@ function npm(args, cwd = root) {
 
 const needOtp = (detail = '') => /EOTP|one-time password/i.test(detail);
 
-console.log('=== Langkah 1: hapus paket lama @verbakit/* ===');
-for (const pkg of ['@verbakit/core', '@verbakit/plugin-sdk']) {
-  const r = npm(['unpublish', pkg]);
+// Nama paket lama ditulis sebagai potongan agar tidak ikut berubah bila
+// proyek di-rename lagi.
+const PAKET_LAMA = [`@press${'forge'}/core`, `@press${'forge'}/plugin-sdk`];
+
+console.log(`=== Langkah 1: hapus paket lama (${PAKET_LAMA.join(', ')}) ===`);
+for (const pkg of PAKET_LAMA) {
+  const r = npm(['unpublish', pkg, '--force']);
   if (!r.ok) {
     if (needOtp(r.detail)) {
       console.log('\nOTP diperlukan: buka URL yang ditampilkan di atas, selesaikan di browser,');
