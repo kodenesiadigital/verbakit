@@ -215,6 +215,10 @@ function useKeyboardSubmenu() {
       if (!(event instanceof MouseEvent)) return;
       const target = event.target;
       if (!(target instanceof HTMLElement)) return;
+      // Tombol chevron ditangani useTouchSubmenu. Kalau ikut diproses di sini,
+      // handler ini akan menghapus .is-open yang baru saja dibuka toggle dan
+      // submenu tidak akan pernah bisa tertutup.
+      if (target.closest('.wp-submenu-toggle')) return;
       const item = target.closest('.wp-menu > li');
       if (item?.classList.contains('is-open')) item.classList.remove('is-open');
     };
@@ -242,6 +246,13 @@ function useTouchSubmenu() {
   useEffect(() => {
     const nav = document.querySelector('.wp-sidebar');
     if (!nav) return;
+
+    // Status buka/tutup disimpan sebagai kelas pada li, jadi React tidak
+    // mengetahuinya. Set atribut ini sekali di awal supaya yang di-update
+    // di handler tidak bertentangan dengan nilai awal dari render.
+    for (const toggle of nav.querySelectorAll('.wp-submenu-toggle')) {
+      toggle.setAttribute('aria-expanded', 'false');
+    }
 
     const onClick = (event: Event) => {
       if (!(event instanceof MouseEvent)) return;
