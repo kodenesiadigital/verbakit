@@ -108,6 +108,20 @@ npx wrangler secret put RESEND_API_KEY   # opsional, tanpa ini email reset hanya
 
 ## Menulis plugin
 
+SDK-nya sudah terbit di npm:
+
+```bash
+npm install @pressforge/plugin-sdk
+# @pressforge/core ikut terpasang sebagai dependensi
+```
+
+| Paket | Isi |
+|---|---|
+| [`@pressforge/plugin-sdk`](https://www.npmjs.com/package/@pressforge/plugin-sdk) | API yang dipakai plugin (`definePlugin`) |
+| [`@pressforge/core`](https://www.npmjs.com/package/@pressforge/core) | Tipe, registry hook/filter, loader plugin |
+
+Keduanya berlisensi AGPL-3.0-or-later, butuh Node 20+.
+
 ### Plugin bundled
 
 ```bash
@@ -131,6 +145,10 @@ mkdir -p plugins/jamku/src
 
 ```ts
 import { definePlugin } from '@pressforge/plugin-sdk';
+```
+
+Plugin yang berdiri sendiri di repo lain memakai dependensi yang sama persis
+(`npm install @pressforge/plugin-sdk`), lalu dikompilasi ke dalam Worker-nya.
 
 export default definePlugin((api) => {
   api.addFilter('content.render', (html) => `${html}<p>${new Date().toLocaleTimeString('id-ID')}</p>`);
