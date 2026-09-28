@@ -24,7 +24,17 @@ body {
   font-size: 13px;
   line-height: 1.4em;
   color: var(--wp-text);
-  background: var(--wp-admin-bg);
+  background: #f0f0f1;
+}
+
+/* Pengaman terakhir: halaman tidak boleh bisa digeser horizontal.
+   overflow-x: clip (bukan hidden) dipakai agar tidak mematikan
+   position: sticky pada admin bar. */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 a {

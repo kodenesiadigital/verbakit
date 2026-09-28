@@ -16,6 +16,7 @@ import { ForgotPasswordPage } from './pages/ForgotPassword.tsx';
 import { ResetPasswordPage } from './pages/ResetPassword.tsx';
 import { ProfilePage } from './pages/Profile.tsx';
 import { IconGalleryPage } from './pages/IconGallery.tsx';
+import { OverflowDebugPage } from './pages/OverflowDebug.tsx';
 import { api } from './api.ts';
 import { Icon } from './icons.tsx';
 import { AdminBar, AdminFooter, ShellContext, Sidebar, type AdminPage, type Counts } from './shell.tsx';
@@ -165,6 +166,9 @@ export function App() {
         {import.meta.env.DEV && (
           <Route path="/dev/icons" element={<Page title="Ikon" icon="star"><IconGalleryPage /></Page>} />
         )}
+        {/* Halaman ini ikut dibangun di produksi agar bisa dipakai saat
+            diagnosa masalah layout di perangkat sungguhan. */}
+        <Route path="/dev/overflow" element={<OverflowDebugPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Shell>
