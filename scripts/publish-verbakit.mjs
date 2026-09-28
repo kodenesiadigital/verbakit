@@ -37,8 +37,30 @@ function npm(args, cwd = root) {
 // Nama paket lama ditulis sebagai potongan agar tidak ikut berubah bila
 // proyek di-rename lagi.
 const PAKET_LAMA = [`@press${'forge'}/core`, `@press${'forge'}/plugin-sdk`];
+const SCOPE_BARU = '@verbakit';
 
-console.log(`=== Langkah 1 (opsional): hapus paket lama ===`);
+console.log('=== Langkah 0: pastikan scope sudah dimiliki ===');
+console.log(`Paket baru memakai scope ${SCOPE_BARU}/. Scope hanya bisa dipakai`);
+console.log('jika ada akun atau organisasi dengan nama tersebut di npm.\n');
+
+try {
+  execFileSync(process.execPath, [NPM, 'view', `${SCOPE_BARU}/core`], {
+    encoding: 'utf8',
+    input: '\n',
+    stdio: 'pipe',
+  });
+  console.log(`Paket ${SCOPE_BARU}/core sudah ada - lewati publish.`);
+  process.exit(0);
+} catch {
+  // Tidak ada - lanjut. Error belum tentu berarti scope tidak dimiliki,
+  // jadi tetap dicoba publish; if sampai gagal, pesannya yang bicara.
+}
+
+console.log(`Scope ${SCOPE_BARU} belum ada - akan dicoba publish.`);
+console.log('Kalau nanti muncul "you do not have permission", buat organisasi dulu:');
+console.log('  https://www.npmjs.com -> Add new organization -> ' + SCOPE_BARU.slice(1) + '\n');
+
+console.log(`\n=== Langkah 1 (opsional): hapus paket lama ===`);
 console.log('Paket lama tidak menghalangi penerbitan. Kalau penghapusan gagal');
 console.log('karena butuh kode OTP, diabaikan saja dan publish tetap berjalan.\n');
 
