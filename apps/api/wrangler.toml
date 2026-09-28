@@ -18,9 +18,7 @@ run_worker_first = true
 [[d1_databases]]
 binding = "DB"
 database_name = "pressforge-db"
-# Placeholder. ID asli diisi lewat secret D1_DATABASE_ID di CI, atau di sini
-# untuk deploy manual. Batas akun free Cloudflare adalah 10 database D1.
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "d18aef60-95e8-42c0-93d2-c3a905644cc9"
 
 [[r2_buckets]]
 binding = "MEDIA"
