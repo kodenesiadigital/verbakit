@@ -245,6 +245,12 @@ h3 {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  /* Cegah halaman bisa digeser horizontal di layar kecil.
+     overflow-x: clip dipilih (bukan hidden) karena clip tidak membuat
+     elemen jadi scroll container, jadi position:sticky pada admin bar
+     tetap berfungsi. */
+  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .wp-adminbar {
@@ -624,6 +630,19 @@ h3 {
   padding: 20px 24px 40px;
   max-width: 1080px;
   width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+/* Judul halaman panjang tidak boleh memaksa halaman melebar */
+.wp-page-title h1 {
+  min-width: 0;
+}
+
+.wp-page-title h1 > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .wp-page-title {
@@ -689,6 +708,7 @@ h3 {
   background: #fff;
   padding: 0 12px;
   gap: 2px;
+  flex-wrap: wrap;
 }
 
 .wp-tabs a {
