@@ -393,12 +393,15 @@ h3 {
     position: sticky;
     top: 0;
     gap: 8px;
-    overflow: hidden;
+    /* JANGAN overflow:hidden di sini - dropdown akun (.ab-menu) Absolute
+       di bawah bar dan akan terpotong. Judul bagian yang dipotong, bukan
+       seluruh bar. */
   }
 
   /* Judul bagian boleh dipotong, bukan memaksa bar melebar */
   .wp-adminbar .ab-section {
     min-width: 0;
+    flex: 0 1 auto;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -863,6 +866,90 @@ img.wp-thumb {
   gap: 12px;
   align-items: flex-end;
   flex-wrap: wrap;
+}
+
+/* ---------- Footer sidebar (Keluar) ---------- */
+.wp-sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid #2c3338;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  align-items: center;
+}
+
+.sb-avatar {
+  grid-row: span 2;
+  margin: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--wp-blue);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.sb-user {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.sb-name {
+  color: #f0f0f1;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sb-role {
+  color: #8c8f94;
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.sb-logout {
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  background: #2c3338;
+  border: 1px solid #3c434a;
+  border-radius: 3px;
+  color: #f0f0f1;
+  font-size: 13px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+.sb-logout:hover {
+  background: #d63638;
+  border-color: #d63638;
+}
+
+/* Sidebar jadi flex kolom supaya footer menempel di bawah */
+.wp-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Layar kecil: jangan sembunyikan label logout di footer */
+@media (max-width: 782px) {
+  .wp-shell.menu-collapsed .sb-name,
+  .wp-shell.menu-collapsed .sb-role {
+    display: block;
+  }
 }
 
 /* ---------- Bulk actions bar ala WordPress ---------- */

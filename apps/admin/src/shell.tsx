@@ -264,7 +264,7 @@ function useTouchSubmenu() {
 
 export function Sidebar() {
   const { pluginPages, siteName, counts, collapsed, mobileMenuOpen, setMobileMenuOpen } = useShell();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   useKeyboardSubmenu();
   useTouchSubmenu();
 
@@ -346,6 +346,21 @@ export function Sidebar() {
             </li>
           ))}
         </ul>
+
+        {/* Footer sidebar: nama pengguna + tombol Keluar, seperti WordPress */}
+        <div className="wp-sidebar-footer">
+          <p className="sb-avatar" aria-hidden="true">
+            {(user?.username ?? '?').slice(0, 1).toUpperCase()}
+          </p>
+          <p className="sb-user">
+            <span className="sb-name">{user?.username ?? 'Tamu'}</span>
+            <span className="sb-role">{user?.role ?? '—'}</span>
+          </p>
+          <button className="sb-logout" onClick={() => void logout()} title="Keluar dari dasbor">
+            <Icon name="close" size={16} />
+            <span>Keluar</span>
+          </button>
+        </div>
       </nav>
     </>
   );
