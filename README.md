@@ -13,7 +13,7 @@ infrastruktur, dan untuk developer yang mau membangun plugin sendiri.
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  Cloudflare Worker  (verbakit)                    │
+│  Cloudflare Worker  (verbakit)                      │
 │                                                     │
 │   /            → situs publik (render tema)         │
 │   /admin/*     → dasbor admin (SPA)                 │
