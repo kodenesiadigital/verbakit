@@ -18,6 +18,9 @@
     "dist"
   ],
   "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "node ../../scripts/build-package.mjs . @kodenesiadigital/verbakit-core",
     "typecheck": "tsc --noEmit"

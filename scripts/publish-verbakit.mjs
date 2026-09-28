@@ -84,7 +84,11 @@ for (const dir of ['packages/core', 'packages/plugin-sdk']) {
     process.exit(2);
   }
 
-  const r = npm(['publish'], join(root, dir));
+  // --access public WAJIB. Tanpa itu npm menganggap paket di scope baru ini
+  // privat dan membalas E402 "You must sign up for private packages"
+  // pada akun free. Ini juga sudah dipasang lewat publishConfig di
+  // package.json, tapi flag ini menjaga kalau publish dipanggil langsung.
+  const r = npm(['publish', '--access', 'public'], join(root, dir));
   if (!r.ok) {
     console.log(
       `\nGagal menerbitkan ${pkg.name}. Pesan errornya ada di atas.` +
