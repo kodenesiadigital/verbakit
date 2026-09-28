@@ -465,23 +465,27 @@ h3 {
   }
 
   /* Bar filter artikel: jangan jadi tiga baris. Kolom pencarian tetap
-     selebar layar, lalu Status dan tombol Cari berbagi satu baris. */
-  .wp-filter-bar {
+     selebar layar, lalu Status dan tombol Cari berbagi satu baris.
+     Selector digabung (.wp-inline-fields.wp-filter-bar) supaya specificity
+     mengalahkan aturan dasar .wp-inline-fields yang dideklarasikan
+     belakangan - media query tidak menambah specificity. */
+  .wp-inline-fields.wp-filter-bar {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
+    flex-direction: row;
     align-items: end;
     gap: 8px;
   }
 
-  .wp-filter-bar > .wp-form-row:first-child {
+  .wp-inline-fields.wp-filter-bar > .wp-form-row:first-child {
     grid-column: 1 / -1;
   }
 
-  .wp-filter-bar > .wp-form-row:nth-child(2) {
+  .wp-inline-fields.wp-filter-bar > .wp-form-row:nth-child(2) {
     max-width: none !important;
   }
 
-  .wp-filter-bar > .wp-btn {
+  .wp-inline-fields.wp-filter-bar > .wp-btn {
     white-space: nowrap;
   }
 }
