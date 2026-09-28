@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.ts';
-import type { Term } from '@verbakit/core';
+import type { Term } from '@kodenesiadigital/verbakit-core';
 
 export interface TermOption extends Term {
   count?: number;

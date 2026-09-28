@@ -4,7 +4,7 @@ import type { Router } from '../router.ts';
 import { resolveTheme, type Theme } from './themes.ts';
 import type { Env } from '../types.ts';
 import type { PluginManager } from '../plugins/manager.ts';
-import type { Post } from '@verbakit/core';
+import type { Post } from '@kodenesiadigital/verbakit-core';
 
 function escapeHtml(value: string): string {
   return value

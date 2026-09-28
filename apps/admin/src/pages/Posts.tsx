@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api.ts';
 import { Icon } from '../icons.tsx';
-import type { PostSummary } from '@verbakit/core';
+import type { PostSummary } from '@kodenesiadigital/verbakit-core';
 
 const STATUS_LABELS: Record<string, string> = {
   all: 'Semua status',

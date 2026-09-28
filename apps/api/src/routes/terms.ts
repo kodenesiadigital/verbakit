@@ -1,7 +1,7 @@
 import { json, notFound, badRequest, readBody } from '../router.ts';
 import { deleteTerm, ensureTerm, getTerm, listTerms, updateTerm } from '../terms.ts';
 import type { RouteDef } from './types.ts';
-import type { TaxonomyKind } from '@verbakit/core';
+import type { TaxonomyKind } from '@kodenesiadigital/verbakit-core';
 
 function parseKind(raw: string | null): TaxonomyKind | null {
   return raw === 'category' || raw === 'tag' ? raw : null;

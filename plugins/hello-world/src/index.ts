@@ -1,4 +1,4 @@
-import { definePlugin } from '@verbakit/plugin-sdk';
+import { definePlugin } from '@kodenesiadigital/verbakit-plugin-sdk';
 
 export default definePlugin((api) => {
   const countKey = 'hello_world_visit_count';

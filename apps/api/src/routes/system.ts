@@ -1,7 +1,7 @@
 import { listPosts, countUsers, getOption, trashPost } from '../db.ts';
 import { json } from '../router.ts';
 import type { RouteDef } from './types.ts';
-import { CORE_VERSION } from '@verbakit/core';
+import { CORE_VERSION } from '@kodenesiadigital/verbakit-core';
 
 export const systemRoutes: RouteDef[] = [
   {

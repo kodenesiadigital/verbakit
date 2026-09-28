@@ -5,7 +5,7 @@ import { api } from '../api.ts';
 import { useAuth } from '../auth.tsx';
 import { Icon } from '../icons.tsx';
 import { ServicePluginsPanel } from './ServicePlugins.tsx';
-import type { Plugin } from '@verbakit/core';
+import type { Plugin } from '@kodenesiadigital/verbakit-core';
 
 export function PluginsPage() {
   const { user } = useAuth();
@@ -163,7 +163,7 @@ function AddPluginPanel() {
               <code>manifest.json</code>.
             </li>
             <li>
-              Tulis entry plugin dengan <code>@verbakit/plugin-sdk</code>:{' '}
+              Tulis entry plugin dengan <code>@kodenesiadigital/verbakit-plugin-sdk</code>:{' '}
               <code>{'export default definePlugin((api) => { ... })'}</code>.
             </li>
             <li>
@@ -173,7 +173,7 @@ function AddPluginPanel() {
           </ol>
           <pre className="code-block">
             <code>{`// plugins/contoh/src/index.ts
-import { definePlugin } from '@verbakit/plugin-sdk';
+import { definePlugin } from '@kodenesiadigital/verbakit-plugin-sdk';
 
 export default definePlugin((api) => {
   api.addFilter('content.render', (html) => \`\${html}<p>by Contoh</p>\`);

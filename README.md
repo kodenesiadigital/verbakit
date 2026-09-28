@@ -111,14 +111,14 @@ npx wrangler secret put RESEND_API_KEY   # opsional, tanpa ini email reset hanya
 SDK-nya sudah terbit di npm:
 
 ```bash
-npm install @verbakit/plugin-sdk
-# @verbakit/core ikut terpasang sebagai dependensi
+npm install @kodenesiadigital/verbakit-plugin-sdk
+# @kodenesiadigital/verbakit-core ikut terpasang sebagai dependensi
 ```
 
 | Paket | Isi |
 |---|---|
-| [`@verbakit/plugin-sdk`](https://www.npmjs.com/package/@verbakit/plugin-sdk) | API yang dipakai plugin (`definePlugin`) |
-| [`@verbakit/core`](https://www.npmjs.com/package/@verbakit/core) | Tipe, registry hook/filter, loader plugin |
+| [`@kodenesiadigital/verbakit-plugin-sdk`](https://www.npmjs.com/package/@kodenesiadigital/verbakit-plugin-sdk) | API yang dipakai plugin (`definePlugin`) |
+| [`@kodenesiadigital/verbakit-core`](https://www.npmjs.com/package/@kodenesiadigital/verbakit-core) | Tipe, registry hook/filter, loader plugin |
 
 Keduanya berlisensi AGPL-3.0-or-later, butuh Node 20+.
 
@@ -144,11 +144,11 @@ mkdir -p plugins/jamku/src
 `plugins/jamku/src/index.ts`:
 
 ```ts
-import { definePlugin } from '@verbakit/plugin-sdk';
+import { definePlugin } from '@kodenesiadigital/verbakit-plugin-sdk';
 ```
 
 Plugin yang berdiri sendiri di repo lain memakai dependensi yang sama persis
-(`npm install @verbakit/plugin-sdk`), lalu dikompilasi ke dalam Worker-nya.
+(`npm install @kodenesiadigital/verbakit-plugin-sdk`), lalu dikompilasi ke dalam Worker-nya.
 
 export default definePlugin((api) => {
   api.addFilter('content.render', (html) => `${html}<p>${new Date().toLocaleTimeString('id-ID')}</p>`);

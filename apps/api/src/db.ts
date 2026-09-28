@@ -1,6 +1,6 @@
 import type { Env } from './types.ts';
-import type { PluginOptionsStore } from '@verbakit/core';
-import type { Post, PostStatus, Term, User } from '@verbakit/core';
+import type { PluginOptionsStore } from '@kodenesiadigital/verbakit-core';
+import type { Post, PostStatus, Term, User } from '@kodenesiadigital/verbakit-core';
 import { hashPassword } from './security.ts';
 
 const newId = () => crypto.randomUUID();

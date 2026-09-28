@@ -1,4 +1,4 @@
-import { type Post, type PostSummary, type PostStatus, type Term } from '@verbakit/core';
+import { type Post, type PostSummary, type PostStatus, type Term } from '@kodenesiadigital/verbakit-core';
 import { badRequest, forbidden, json, notFound, readBody } from '../router.ts';
 import {
   bulkUpdatePosts,

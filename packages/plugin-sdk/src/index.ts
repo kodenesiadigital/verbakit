@@ -15,7 +15,7 @@ import type {
   PluginContext,
   PluginOptionsStore,
   PluginRegistration,
-} from '@verbakit/core';
+} from '@kodenesiadigital/verbakit-core';
 
 export type {
   AdminPageDef,

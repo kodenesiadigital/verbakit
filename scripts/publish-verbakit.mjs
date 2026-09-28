@@ -9,7 +9,7 @@
  * Pemakaian: npm run publish:verbakit
  */
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const NPM = 'C:/Program Files/nodejs/node_modules/npm/bin/npm-cli.js';
@@ -37,28 +37,20 @@ function npm(args, cwd = root) {
 // Nama paket lama ditulis sebagai potongan agar tidak ikut berubah bila
 // proyek di-rename lagi.
 const PAKET_LAMA = [`@press${'forge'}/core`, `@press${'forge'}/plugin-sdk`];
-const SCOPE_BARU = '@verbakit';
+const SCOPE_BARU = '@kodenesiadigital';
+const PAKET_BARU = ['@kodenesiadigital/verbakit-core', '@kodenesiadigital/verbakit-plugin-sdk'];
 
-console.log('=== Langkah 0: pastikan scope sudah dimiliki ===');
-console.log(`Paket baru memakai scope ${SCOPE_BARU}/. Scope hanya bisa dipakai`);
-console.log('jika ada akun atau organisasi dengan nama tersebut di npm.\n');
-
-try {
-  execFileSync(process.execPath, [NPM, 'view', `${SCOPE_BARU}/core`], {
-    encoding: 'utf8',
-    input: '\n',
-    stdio: 'pipe',
-  });
-  console.log(`Paket ${SCOPE_BARU}/core sudah ada - lewati publish.`);
-  process.exit(0);
-} catch {
-  // Tidak ada - lanjut. Error belum tentu berarti scope tidak dimiliki,
-  // jadi tetap dicoba publish; if sampai gagal, pesannya yang bicara.
+console.log(`=== Langkah 0: cek paket baru belum ada ===`);
+for (const pkg of PAKET_BARU) {
+  try {
+    execFileSync(process.execPath, [NPM, 'view', pkg], { encoding: 'utf8', input: '\n', stdio: 'pipe' });
+    console.log(`${pkg} sudah ada. Tidak ada yang perlu diterbitkan.`);
+    process.exit(0);
+  } catch {
+    // Belum ada - lanjut.
+  }
 }
-
-console.log(`Scope ${SCOPE_BARU} belum ada - akan dicoba publish.`);
-console.log('Kalau nanti muncul "you do not have permission", buat organisasi dulu:');
-console.log('  https://www.npmjs.com -> Add new organization -> ' + SCOPE_BARU.slice(1) + '\n');
+console.log(`${PAKET_BARU.join(' dan ')} belum ada - akan dicoba publish.\n`);
 
 console.log(`\n=== Langkah 1 (opsional): hapus paket lama ===`);
 console.log('Paket lama tidak menghalangi penerbitan. Kalau penghapusan gagal');
@@ -74,18 +66,22 @@ for (const pkg of PAKET_LAMA) {
   }
 }
 
-console.log('\n\n=== Langkah 2: terbitkan paket baru @verbakit/* ===');
+console.log('\n\n=== Langkah 2: terbitkan paket baru ===');
 for (const dir of ['packages/core', 'packages/plugin-sdk']) {
   const file = join(root, dir, 'package.json');
   const pkg = JSON.parse(readFileSync(file, 'utf8'));
 
-  if (!pkg.name?.startsWith('@verbakit/')) {
-    console.log(`\n${pkg.name} belum diubah ke @verbakit/ - dilewati`);
+  if (!pkg.name?.startsWith(`${SCOPE_BARU}/`)) {
+    console.log(`\n${pkg.name} di luar scope ${SCOPE_BARU} - dilewati`);
     continue;
   }
-  if (!pkg.version) {
-    console.log(`\n${pkg.name} belum punya dist/ (jalankan: npm run build:packages)`);
-    continue;
+  if (pkg.private === true) {
+    console.log(`\n${pkg.name} ditandai private - npm akan menolak, dilewati`);
+    process.exit(2);
+  }
+  if (!existsSync(join(root, dir, 'dist', 'index.js'))) {
+    console.log(`\n${pkg.name} belum punya dist/ - jalankan: npm run build:packages`);
+    process.exit(2);
   }
 
   const r = npm(['publish'], join(root, dir));
@@ -100,5 +96,5 @@ for (const dir of ['packages/core', 'packages/plugin-sdk']) {
 }
 
 console.log('\n\nSelesai. Cek hasil di:');
-console.log('  https://www.npmjs.com/package/@verbakit/core');
-console.log('  https://www.npmjs.com/package/@verbakit/plugin-sdk\n');
+console.log('  https://www.npmjs.com/package/@kodenesiadigital/verbakit-core');
+console.log('  https://www.npmjs.com/package/@kodenesiadigital/verbakit-plugin-sdk\n');

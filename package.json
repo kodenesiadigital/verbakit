@@ -24,8 +24,8 @@
   ],
   "scripts": {
     "build:registry": "node scripts/generate-registry.mjs",
-    "build:core": "npm run build -w @verbakit/core",
-    "build:sdk": "npm run build -w @verbakit/plugin-sdk",
+    "build:core": "npm run build -w @kodenesiadigital/verbakit-core",
+    "build:sdk": "npm run build -w @kodenesiadigital/verbakit-plugin-sdk",
     "build:packages": "npm run build:core && npm run build:sdk",
     "build:admin": "npm run build -w @verbakit/admin",
     "build": "npm run build:registry && npm run build:packages && npm run typecheck && npm run build:admin",

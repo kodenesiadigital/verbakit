@@ -1,5 +1,5 @@
 {
-  "name": "@verbakit/plugin-sdk",
+  "name": "@kodenesiadigital/verbakit-plugin-sdk",
   "version": "0.1.0",
   "description": "SDK untuk menulis plugin Verbakit (mirip WordPress Plugin API).",
   "license": "AGPL-3.0-or-later",
@@ -19,11 +19,11 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "node ../../scripts/build-package.mjs . @verbakit/core",
+    "build": "node ../../scripts/build-package.mjs . @kodenesiadigital/verbakit-core",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@verbakit/core": "0.1.0"
+    "@kodenesiadigital/verbakit-core": "0.1.0"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",

@@ -10,8 +10,8 @@
     "db:init": "wrangler d1 execute cms --local --file ./src/schema.sql"
   },
   "dependencies": {
-    "@verbakit/core": "0.1.0",
-    "@verbakit/plugin-sdk": "0.1.0"
+    "@kodenesiadigital/verbakit-core": "0.1.0",
+    "@kodenesiadigital/verbakit-plugin-sdk": "0.1.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241127.0",
