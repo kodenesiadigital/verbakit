@@ -15,29 +15,24 @@ import { join } from 'node:path';
 const NPM = 'C:/Program Files/nodejs/node_modules/npm/bin/npm-cli.js';
 const root = process.cwd();
 
+/**
+ * Jalankan npm dengan stdio 'inherit' - JANGAN me-pipe output.
+ *
+ * npm.onlyVueEditing.replaceText edit/menensor URL autentikasi OTP jadi "***"
+ * kalau stdout-nya bukan TTY. Kalau output di-pipe, pengguna tidak
+ * pernah mendapat URL untuk menyelesaikan OTP, dan perintah gagal
+ * tanpa bisa dilanjutkan.
+ */
 function npm(args, cwd = root) {
   process.stdout.write(`\n>>> npm ${args.join(' ')}\n`);
   try {
-    const out = execFileSync(process.execPath, [NPM, ...args], {
-      cwd,
-      encoding: 'utf8',
-      stdio: ['inherit', 'pipe', 'pipe'],
-    });
-    const tail = out.split('\n').filter((l) => l.trim()).slice(-4).join('\n');
-    if (tail) console.log(tail);
+    execFileSync(process.execPath, [NPM, ...args], { cwd, stdio: 'inherit' });
     return { ok: true };
-  } catch (error) {
-    const detail = (error.stderr?.toString() || error.stdout?.toString() || error.message)
-      .split('\n')
-      .filter((l) => l.trim())
-      .slice(0, 8)
-      .join('\n');
-    console.log(detail);
-    return { ok: false, detail };
+  } catch {
+    // Detail error sudah tampil langsung di terminal pengguna.
+    return { ok: false, detail: '' };
   }
 }
-
-const needOtp = (detail = '') => /EOTP|one-time password/i.test(detail);
 
 // Nama paket lama ditulis sebagai potongan agar tidak ikut berubah bila
 // proyek di-rename lagi.
@@ -47,14 +42,15 @@ console.log(`=== Langkah 1: hapus paket lama (${PAKET_LAMA.join(', ')}) ===`);
 for (const pkg of PAKET_LAMA) {
   const r = npm(['unpublish', pkg, '--force']);
   if (!r.ok) {
-    if (needOtp(r.detail)) {
-      console.log('\nOTP diperlukan: buka URL yang ditampilkan di atas, selesaikan di browser,');
-      console.log('lalu jalankan ulang: npm run publish:verbakit\n');
-      process.exit(2);
-    }
-    if (/E404|not found|cannot find/i.test(r.detail)) {
-      console.log('(sudah tidak ada, dilewati)');
-    }
+    // Karena output tidak di-capture, errornya hanya bisa dilihat di terminal.
+    // Hentikan saja: Publishing probably gagal atau Butuh OTP.
+    console.log(
+      `\nGagal menghapus ${pkg}. Pesan errornya ada di atas.` +
+        '\nKalau muncul "one-time password", buka URL yang ditampilkan, selesaikan di browser,' +
+        '\nlalu jalankan ulang: npm run publish:verbakit' +
+        '\nKalau "not found", paket sudah tidak ada - lanjut ke langkah 2.\n',
+    );
+    process.exit(2);
   }
 }
 
@@ -73,8 +69,12 @@ for (const dir of ['packages/core', 'packages/plugin-sdk']) {
   }
 
   const r = npm(['publish'], join(root, dir));
-  if (!r.ok && needOtp(r.detail)) {
-    console.log('\nOTP diperlukan. Setelah selesai di browser, jalankan ulang: npm run publish:verbakit\n');
+  if (!r.ok) {
+    console.log(
+      `\nGagal menerbitkan ${pkg.name}. Pesan errornya ada di atas.` +
+        '\nKalau muncul "one-time password", buka URL yang ditampilkan, selesaikan di browser,' +
+        '\nlalu jalankan ulang: npm run publish:verbakit\n',
+    );
     process.exit(2);
   }
 }
