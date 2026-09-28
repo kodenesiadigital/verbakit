@@ -463,6 +463,27 @@ h3 {
     flex-direction: column;
     align-items: stretch;
   }
+
+  /* Bar filter artikel: jangan jadi tiga baris. Kolom pencarian tetap
+     selebar layar, lalu Status dan tombol Cari berbagi satu baris. */
+  .wp-filter-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 8px;
+  }
+
+  .wp-filter-bar > .wp-form-row:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .wp-filter-bar > .wp-form-row:nth-child(2) {
+    max-width: none !important;
+  }
+
+  .wp-filter-bar > .wp-btn {
+    white-space: nowrap;
+  }
 }
 
 .wp-adminbar .sep {

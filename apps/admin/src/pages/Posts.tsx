@@ -92,7 +92,7 @@ export function PostsPage({ type }: { type: 'post' | 'page' }) {
         }}
       >
         <div className="wp-card-body">
-          <div className="wp-inline-fields">
+          <div className="wp-inline-fields wp-filter-bar">
             <div className="wp-form-row" style={{ marginBottom: 0 }}>
               <label htmlFor="search">Cari</label>
               <input
