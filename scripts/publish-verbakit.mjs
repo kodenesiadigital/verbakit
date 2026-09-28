@@ -38,19 +38,17 @@ function npm(args, cwd = root) {
 // proyek di-rename lagi.
 const PAKET_LAMA = [`@press${'forge'}/core`, `@press${'forge'}/plugin-sdk`];
 
-console.log(`=== Langkah 1: hapus paket lama (${PAKET_LAMA.join(', ')}) ===`);
+console.log(`=== Langkah 1 (opsional): hapus paket lama ===`);
+console.log('Paket lama tidak menghalangi penerbitan. Kalau penghapusan gagal');
+console.log('karena butuh kode OTP, diabaikan saja dan publish tetap berjalan.\n');
+
 for (const pkg of PAKET_LAMA) {
   const r = npm(['unpublish', pkg, '--force']);
   if (!r.ok) {
-    // Karena output tidak di-capture, errornya hanya bisa dilihat di terminal.
-    // Hentikan saja: Publishing probably gagal atau Butuh OTP.
     console.log(
-      `\nGagal menghapus ${pkg}. Pesan errornya ada di atas.` +
-        '\nKalau muncul "one-time password", buka URL yang ditampilkan, selesaikan di browser,' +
-        '\nlalu jalankan ulang: npm run publish:verbakit' +
-        '\nKalau "not found", paket sudah tidak ada - lanjut ke langkah 2.\n',
+      `\n${pkg} belum terhapus - tidak masalah, paket lama hanya jadi tidak terpakai.` +
+        '\n Bisa dihapus nanti dengan: npm unpublish ' + pkg + ' --force --otp <kode>\n',
     );
-    process.exit(2);
   }
 }
 
