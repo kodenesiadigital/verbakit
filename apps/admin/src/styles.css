@@ -35,6 +35,10 @@ body {
   max-width: 100%;
   overflow-x: hidden;
   overflow-x: clip;
+  /* Matikan efek rubber-band iOS: halaman terasa "digeser" lalu memantul
+     padahal tidak ada elemen yang melebihi layar. */
+  overscroll-behavior-x: none;
+  overscroll-behavior-y: none;
 }
 
 a {
