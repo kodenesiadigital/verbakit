@@ -49,10 +49,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/verbakit/verbakit.git"
+    "url": "git+https://github.com/kodenesiadigital/verbakit.git"
   },
   "bugs": {
-    "url": "https://github.com/verbakit/verbakit/issues"
+    "url": "https://github.com/kodenesiadigital/verbakit/issues"
   },
   "author": {
     "name": "verbakit"
