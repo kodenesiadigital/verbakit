@@ -13,11 +13,11 @@ produk. Perilaku yang tidak dapat diterima di ruang ini:
 
 ## Ruang lingkup
 
-Berlaku di issue, pull request, diskusi, dan kanal komunitas resmi PressForge.
+Berlaku di issue, pull request, diskusi, dan kanal komunitas resmi Verbakit.
 
 ## Pelaporan
 
-Laporkan perilaku yang tidak dapat diterima lewat `conduct@pressforge.my.id`.
+Laporkan perilaku yang tidak dapat diterima lewat `conduct@verbakit.my.id`.
 Semua laporan akan ditinjau dan ditangani secara rahasia. Pelapor tidak akan
 dibasas dengan pembalasan.
 

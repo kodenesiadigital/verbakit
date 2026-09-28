@@ -45,7 +45,7 @@ class ResendMailer implements Mailer {
 
   constructor(apiKey: string, env: MailerEnv) {
     this.#apiKey = apiKey;
-    const name = env.MAIL_FROM_NAME?.trim() || 'PressForge';
+    const name = env.MAIL_FROM_NAME?.trim() || 'Verbakit';
     const address = env.MAIL_FROM?.trim() || 'onboarding@resend.dev';
     this.#from = address.includes('<') ? address : `${name} <${address}>`;
   }
@@ -94,11 +94,11 @@ export async function sendPasswordResetEmail(mailer: Mailer, email: string, link
   const safeLink = escapeHtml(link);
   await mailer.send({
     to: email,
-    subject: 'Atur ulang password PressForge Anda',
+    subject: 'Atur ulang password Verbakit Anda',
     text: [
       'Halo,',
       '',
-      'Ada permintaan untuk mengatur ulang password akun PressForge Anda.',
+      'Ada permintaan untuk mengatur ulang password akun Verbakit Anda.',
       'Buka tautan berikut untuk membuat password baru:',
       '',
       link,
@@ -110,7 +110,7 @@ export async function sendPasswordResetEmail(mailer: Mailer, email: string, link
 <html lang="id"><body style="margin:0;padding:24px;background:#f1f5f9;font-family:-apple-system,Segoe UI,Roboto,sans-serif;color:#0f172a">
   <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:8px;padding:28px">
     <h1 style="margin:0 0 16px;font-size:20px">Atur ulang password</h1>
-    <p style="margin:0 0 12px">Ada permintaan untuk mengatur ulang password akun PressForge Anda.</p>
+    <p style="margin:0 0 12px">Ada permintaan untuk mengatur ulang password akun Verbakit Anda.</p>
     <p style="margin:0 0 20px">
       <a href="${safeLink}" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;padding:11px 20px;border-radius:6px;font-weight:600">Buat password baru</a>
     </p>

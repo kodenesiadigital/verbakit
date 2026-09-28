@@ -4,7 +4,7 @@ Status: **Proposed** · Tanggal: 2026-09-26
 
 ## Konteks
 
-PressForge boucles WordPress-like: plugin adalah ekstensi yang bisa ditulis developer
+Verbakit boucles WordPress-like: plugin adalah ekstensi yang bisa ditulis developer
 lain. Saat ini plugin hanya bisa dimuat saat build lewat `scripts/generate-registry.mjs`.
 Artinya pembeli CMS tidak bisa menambah plugin setelah instalasi — ini masalah
 fundamental untuk model bisnis "jual CMS + marketplace plugin".

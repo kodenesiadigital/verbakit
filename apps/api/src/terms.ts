@@ -1,5 +1,5 @@
 import type { Env } from './types.ts';
-import type { Term, TaxonomyKind } from '@pressforge/core';
+import type { Term, TaxonomyKind } from '@verbakit/core';
 import { slugify } from './db.ts';
 
 /**

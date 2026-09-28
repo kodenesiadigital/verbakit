@@ -5,7 +5,7 @@ import { Icon } from '../icons.tsx';
 import { siteUrl } from '../site.ts';
 import { TaxonomyPanel, type TermSelection } from './TaxonomyPanel.tsx';
 import { MediaPicker } from './MediaPicker.tsx';
-import type { Post, Term } from '@pressforge/core';
+import type { Post, Term } from '@verbakit/core';
 
 interface Revision {
   id: string;

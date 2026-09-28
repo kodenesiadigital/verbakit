@@ -2,12 +2,12 @@ import { badRequest, forbidden, json, unauthorized } from '../router.ts';
 import { dispatchServiceEvent } from '../service-plugins.ts';
 import type { RouteDef } from './types.ts';
 
-const CRON_SECRET_HEADER = 'x-pressforge-cron-key';
+const CRON_SECRET_HEADER = 'x-verbakit-cron-key';
 
 /**
  * Endpoint cron: memicu event ke plugin service.
  *
- * Dipegang header `x-pressforge-cron-key` yang nilainya harus sama dengan
+ * Dipegang header `x-verbakit-cron-key` yang nilainya harus sama dengan
  * env.CRON_SECRET. Dipanggil dari Cloudflare Cron Triggers atau scheduler
  * eksternal, bukan dari UI.
  */

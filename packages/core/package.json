@@ -1,9 +1,9 @@
 {
-  "name": "@pressforge/core",
+  "name": "@verbakit/core",
   "version": "0.1.0",
-  "description": "Registry action/filter, plugin loader, dan tipe bersama untuk PressForge.",
+  "description": "Registry action/filter, plugin loader, dan tipe bersama untuk Verbakit.",
   "license": "AGPL-3.0-or-later",
-  "homepage": "https://pressforge.my.id",
+  "homepage": "https://verbakit.my.id",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -28,10 +28,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/prorstun/pressforge.git"
+    "url": "git+https://github.com/verbakit/verbakit.git"
   },
   "bugs": {
-    "url": "https://github.com/prorstun/pressforge/issues"
+    "url": "https://github.com/verbakit/verbakit/issues"
   },
   "author": {
     "name": "prorstun"

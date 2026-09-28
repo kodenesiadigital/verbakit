@@ -1,4 +1,4 @@
-# PressForge
+# Verbakit
 
 ![Lisensi: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)
 ![Runtime: Cloudflare Workers](https://img.shields.io/badge/runtime-Cloudflare%20Workers-orange.svg)
@@ -13,7 +13,7 @@ infrastruktur, dan untuk developer yang mau membangun plugin sendiri.
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  Cloudflare Worker  (pressforge)                    │
+│  Cloudflare Worker  (verbakit)                    │
 │                                                     │
 │   /            → situs publik (render tema)         │
 │   /admin/*     → dasbor admin (SPA)                 │
@@ -87,9 +87,9 @@ Buat resource Cloudflare lebih dulu:
 
 ```bash
 npx wrangler login
-npx wrangler d1 create pressforge-db
+npx wrangler d1 create verbakit-db
 npx wrangler kv namespace create KV
-npx wrangler r2 bucket create pressforge-media
+npx wrangler r2 bucket create verbakit-media
 ```
 
 Masukkan ID yang didapat ke `apps/api/wrangler.toml`, lalu:
@@ -111,14 +111,14 @@ npx wrangler secret put RESEND_API_KEY   # opsional, tanpa ini email reset hanya
 SDK-nya sudah terbit di npm:
 
 ```bash
-npm install @pressforge/plugin-sdk
-# @pressforge/core ikut terpasang sebagai dependensi
+npm install @verbakit/plugin-sdk
+# @verbakit/core ikut terpasang sebagai dependensi
 ```
 
 | Paket | Isi |
 |---|---|
-| [`@pressforge/plugin-sdk`](https://www.npmjs.com/package/@pressforge/plugin-sdk) | API yang dipakai plugin (`definePlugin`) |
-| [`@pressforge/core`](https://www.npmjs.com/package/@pressforge/core) | Tipe, registry hook/filter, loader plugin |
+| [`@verbakit/plugin-sdk`](https://www.npmjs.com/package/@verbakit/plugin-sdk) | API yang dipakai plugin (`definePlugin`) |
+| [`@verbakit/core`](https://www.npmjs.com/package/@verbakit/core) | Tipe, registry hook/filter, loader plugin |
 
 Keduanya berlisensi AGPL-3.0-or-later, butuh Node 20+.
 
@@ -144,11 +144,11 @@ mkdir -p plugins/jamku/src
 `plugins/jamku/src/index.ts`:
 
 ```ts
-import { definePlugin } from '@pressforge/plugin-sdk';
+import { definePlugin } from '@verbakit/plugin-sdk';
 ```
 
 Plugin yang berdiri sendiri di repo lain memakai dependensi yang sama persis
-(`npm install @pressforge/plugin-sdk`), lalu dikompilasi ke dalam Worker-nya.
+(`npm install @verbakit/plugin-sdk`), lalu dikompilasi ke dalam Worker-nya.
 
 export default definePlugin((api) => {
   api.addFilter('content.render', (html) => `${html}<p>${new Date().toLocaleTimeString('id-ID')}</p>`);
@@ -198,7 +198,7 @@ export default {
 
 Pasang dari **Dasbor → Plugin → Tambah Plugin** dengan URL manifest. Setiap request
 ditandatangani HMAC-SHA256 pada `timestamp.body` — plugin wajib memverifikasi
-header `x-pressforge-signature` sebelum memproses apa pun.
+header `x-verbakit-signature` sebelum memproses apa pun.
 
 ## Struktur repositori
 

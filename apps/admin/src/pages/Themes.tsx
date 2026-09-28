@@ -85,7 +85,7 @@ export function ThemesPage() {
         ))}
       </div>
       <p className="muted" style={{ marginTop: 14 }}>
-        Tema bawaan PressForge. Plugin dapat menambah tema baru lewat registry saat build.
+        Tema bawaan Verbakit. Plugin dapat menambah tema baru lewat registry saat build.
       </p>
     </>
   );

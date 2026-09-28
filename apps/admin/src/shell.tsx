@@ -128,7 +128,7 @@ const EMPTY_COUNTS: Counts = { posts: 0, pages: 0, users: 0, activePlugins: 0, d
 
 export const ShellContext = createContext<ShellData>({
   pluginPages: [],
-  siteName: 'PressForge',
+  siteName: 'Verbakit',
   counts: EMPTY_COUNTS,
   collapsed: false,
   setCollapsed: () => undefined,
@@ -460,7 +460,7 @@ export function AdminFooter({ children }: { children?: ReactNode }) {
       {children}
       <div className="wp-footer">
         <p>
-          Terima kasih telah menggunakan <strong>PressForge</strong>.
+          Terima kasih telah menggunakan <strong>Verbakit</strong>.
         </p>
         <p className="muted">Versi 0.1.0 &middot; Seluruh hak cipta dilindungi.</p>
       </div>

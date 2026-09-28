@@ -1,5 +1,5 @@
 {
-  "name": "@pressforge/admin",
+  "name": "@verbakit/admin",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@pressforge/core": "0.1.0",
+    "@verbakit/core": "0.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"
@@ -24,13 +24,13 @@
     "vite": "^5.4.11"
   },
   "license": "AGPL-3.0-or-later",
-  "homepage": "https://pressforge.my.id",
+  "homepage": "https://verbakit.my.id",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/prorstun/pressforge.git"
+    "url": "git+https://github.com/verbakit/verbakit.git"
   },
   "bugs": {
-    "url": "https://github.com/prorstun/pressforge/issues"
+    "url": "https://github.com/verbakit/verbakit/issues"
   },
   "author": {
     "name": "prorstun"

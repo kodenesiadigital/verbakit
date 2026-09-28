@@ -1,4 +1,4 @@
-import { bootstrapPlugins, Hooks, type HostDeps, type LoadedPlugin, type Plugin } from '@pressforge/core';
+import { bootstrapPlugins, Hooks, type HostDeps, type LoadedPlugin, type Plugin } from '@verbakit/core';
 import { pluginEntries, pluginManifests } from './registry.ts';
 import { pluginOptionsStore } from '../db.ts';
 import type { Env } from '../types.ts';

@@ -1,32 +1,32 @@
-name = "pressforge-api"
+name = "verbakit-api"
 main = "src/index.ts"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
 
 # Aset statis (build admin) disajikan Worker di bawah /admin.
-# Handler di src/index.ts Intercept /admin/* dan jatuh ke index.html untuk SPA.
+# Handler di src/index.ts menangani /admin/* dan jatuh ke index.html untuk SPA.
 [assets]
 directory = "../admin/dist"
 binding = "ASSETS"
 # "none" = file yang tidak ditemukan diteruskan ke Worker (bukan 404 otomatis),
-# supaya Worker bisa Guaranti fallback SPA.
+# supaya Worker bisa memakai fallback SPA.
 not_found_handling = "none"
-# Worker selalu dijalankan lebih dulu. Tanpa ini router aset BoysWG mengarahkan
+# Worker selalu dijalankan lebih dulu. Tanpa ini router aset mengarahkan
 # ulang path /admin/* sebelum Worker sempat menanganinya.
 run_worker_first = true
 
 [[d1_databases]]
 binding = "DB"
-database_name = "pressforge-db"
-database_id = "d18aef60-95e8-42c0-93d2-c3a905644cc9"
+database_name = "verbakit-db"
+database_id = "7495e531-036f-4e9b-a2ef-566a9d004dbf"
 
 [[r2_buckets]]
 binding = "MEDIA"
-bucket_name = "pressforge-media"
+bucket_name = "verbakit-media"
 
 [[kv_namespaces]]
 binding = "KV"
 id = "1eff3caf262b480f923de790543bfa89"
 
 [vars]
-ADMIN_EMAIL = "admin@pressforge.test"
+ADMIN_EMAIL = "admin@verbakit.test"

@@ -168,9 +168,9 @@ export async function dispatchToServicePlugin(
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-pressforge-plugin': plugin.id,
-        'x-pressforge-timestamp': timestamp,
-        ...(signature ? { 'x-pressforge-signature': signature } : {}),
+        'x-verbakit-plugin': plugin.id,
+        'x-verbakit-timestamp': timestamp,
+        ...(signature ? { 'x-verbakit-signature': signature } : {}),
       },
       body,
       signal: controller.signal,

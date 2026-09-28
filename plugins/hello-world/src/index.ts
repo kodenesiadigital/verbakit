@@ -1,4 +1,4 @@
-import { definePlugin } from '@pressforge/plugin-sdk';
+import { definePlugin } from '@verbakit/plugin-sdk';
 
 export default definePlugin((api) => {
   const countKey = 'hello_world_visit_count';

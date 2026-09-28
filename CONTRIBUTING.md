@@ -1,7 +1,7 @@
-# Kontribusi ke PressForge
+# Kontribusi ke Verbakit
 
 Terima kasih sudah bersedia membantu. Dokumen ini menjelaskan cara menjalankan
-PressForge di mesin Anda dan apa yang diharapkan dari pull request.
+Verbakit di mesin Anda dan apa yang diharapkan dari pull request.
 
 ## Menjalankan secara lokal
 

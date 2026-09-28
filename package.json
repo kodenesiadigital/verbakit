@@ -1,10 +1,10 @@
 {
-  "name": "pressforge",
+  "name": "verbakit",
   "private": true,
   "version": "0.1.0",
   "description": "WordPress-like CMS, fully on Cloudflare (Workers + D1 + R2 + KV), plugin-extensible.",
   "license": "AGPL-3.0-or-later",
-  "homepage": "https://pressforge.my.id",
+  "homepage": "https://verbakit.my.id",
   "type": "module",
   "engines": {
     "node": ">=20"
@@ -24,17 +24,18 @@
   ],
   "scripts": {
     "build:registry": "node scripts/generate-registry.mjs",
-    "build:core": "npm run build -w @pressforge/core",
-    "build:sdk": "npm run build -w @pressforge/plugin-sdk",
+    "build:core": "npm run build -w @verbakit/core",
+    "build:sdk": "npm run build -w @verbakit/plugin-sdk",
     "build:packages": "npm run build:core && npm run build:sdk",
-    "build:admin": "npm run build -w @pressforge/admin",
+    "build:admin": "npm run build -w @verbakit/admin",
     "build": "npm run build:registry && npm run build:packages && npm run typecheck && npm run build:admin",
-    "deploy": "npm run build && npm run deploy -w @pressforge/api",
+    "deploy": "npm run build && npm run deploy -w @verbakit/api",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "set-admin-password": "node scripts/set-admin-password.mjs",
+    "publish:verbakit": "node scripts/publish-verbakit.mjs",
     "predev:api": "npm run build:packages",
-    "dev:api": "npm run dev -w @pressforge/api",
-    "dev:admin": "npm run dev -w @pressforge/admin"
+    "dev:api": "npm run dev -w @verbakit/api",
+    "dev:admin": "npm run dev -w @verbakit/admin"
   },
   "devDependencies": {
     "typescript": "^5.9.0"
@@ -48,10 +49,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/prorstun/pressforge.git"
+    "url": "git+https://github.com/verbakit/verbakit.git"
   },
   "bugs": {
-    "url": "https://github.com/prorstun/pressforge/issues"
+    "url": "https://github.com/verbakit/verbakit/issues"
   },
   "author": {
     "name": "prorstun"

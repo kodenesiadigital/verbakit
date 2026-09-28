@@ -25,7 +25,7 @@ export function LoginPage() {
   return (
     <div className="login-page">
       <form className="login-box" onSubmit={handleSubmit}>
-        <h1>PressForge</h1>
+        <h1>Verbakit</h1>
         <p className="sub">Masuk ke dasbor admin</p>
         {error && <div className="wp-notice error">{error}</div>}
         <div>

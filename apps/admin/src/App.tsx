@@ -25,7 +25,7 @@ const EMPTY_COUNTS: Counts = { posts: 0, pages: 0, users: 0, activePlugins: 0, d
 
 function Shell({ children }: { children: ReactNode }) {
   const [pluginPages, setPluginPages] = useState<AdminPage[]>([]);
-  const [siteName, setSiteName] = useState('PressForge');
+  const [siteName, setSiteName] = useState('Verbakit');
   const [counts, setCounts] = useState<Counts>(EMPTY_COUNTS);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(
@@ -44,7 +44,7 @@ function Shell({ children }: { children: ReactNode }) {
     api
       .get<{ siteName: string; counts: Omit<Counts, 'drafts' | 'published'> }>('/api/system/status')
       .then(async (status) => {
-        setSiteName(status.siteName || 'PressForge');
+        setSiteName(status.siteName || 'Verbakit');
         const [drafts, published] = await Promise.all([
           api
             .get<{ total: number }>('/api/posts?type=post&status=draft&per_page=1')

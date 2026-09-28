@@ -1,5 +1,5 @@
 {
-  "name": "@pressforge/api",
+  "name": "@verbakit/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,8 @@
     "db:init": "wrangler d1 execute cms --local --file ./src/schema.sql"
   },
   "dependencies": {
-    "@pressforge/core": "0.1.0",
-    "@pressforge/plugin-sdk": "0.1.0"
+    "@verbakit/core": "0.1.0",
+    "@verbakit/plugin-sdk": "0.1.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241127.0",
@@ -19,13 +19,13 @@
     "wrangler": "^4.0.0"
   },
   "license": "AGPL-3.0-or-later",
-  "homepage": "https://pressforge.my.id",
+  "homepage": "https://verbakit.my.id",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/prorstun/pressforge.git"
+    "url": "git+https://github.com/verbakit/verbakit.git"
   },
   "bugs": {
-    "url": "https://github.com/prorstun/pressforge/issues"
+    "url": "https://github.com/verbakit/verbakit/issues"
   },
   "author": {
     "name": "prorstun"

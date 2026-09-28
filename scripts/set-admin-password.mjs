@@ -1,5 +1,5 @@
 /**
- * Mengatur ulang password admin PressForge di Cloudflare D1.
+ * Mengatur ulang password admin Verbakit di Cloudflare D1.
  *
  * Password di-generate DI TERMINAL PENGGUNA lalu langsung disimpan ke D1.
  * Nilainya hanya dicetak sekali ke layar Anda - tidak pernah lewat ke
@@ -20,7 +20,7 @@ const apiDir = join(repo, 'apps', 'api');
 const wrangler = join(repo, 'node_modules', 'wrangler', 'bin', 'wrangler.js');
 
 const args = process.argv.slice(2);
-const database = args[0] ?? 'pressforge-db';
+const database = args[0] ?? 'verbakit-db';
 const username = args[1] ?? 'admin';
 
 // Validasi: mencegah argumeniguously (mis. --help) diperlakukan sebagai nama
@@ -79,6 +79,6 @@ console.log('  ' + '-'.repeat(46));
 console.log('  username : ' + username);
 console.log('  password : ' + password);
 console.log('  ' + '-'.repeat(46));
-console.log('\nLogin: https://pressforge-api.kodenesiadigital.workers.dev/admin');
+console.log('\nLogin: https://verbakit-api.kodenesiadigital.workers.dev/admin');
 console.log('Simpan password ini sekarang - tidak bisa dilihat lagi.\n');
 console.log('Lupa lagi? Jalankan ulang: npm run set-admin-password\n');

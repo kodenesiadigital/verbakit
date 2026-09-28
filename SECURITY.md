@@ -6,13 +6,13 @@
 
 Laporkan lewat GitHub Security Advisories pada repo ini
 (menu **Security → Report a vulnerability**), atau kirim surel ke
-`security@pressforge.my.id`.
+`security@verbakit.my.id`.
 
 Sertakan:
 
 - Langkah reproduksi
 - Dampak yang diharapkan
-- Versi PressForge (nomor commit atau isi `package.json`) dan konfigurasi
+- Versi Verbakit (nomor commit atau isi `package.json`) dan konfigurasi
 - Bukti bila ada (screenshot, log, atau request mentah)
 
 ## Target waktubalas

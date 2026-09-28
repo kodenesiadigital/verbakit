@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../api.ts';
 import { Icon } from '../icons.tsx';
-import type { User } from '@pressforge/core';
+import type { User } from '@verbakit/core';
 
 const ROLE_LABELS: Record<string, string> = {
   admin: 'Administrator',

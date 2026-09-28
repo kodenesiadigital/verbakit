@@ -1,5 +1,5 @@
 {
-  "name": "@pressforge-plugins/hello-world",
+  "name": "@verbakit-plugins/hello-world",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "./manifest.json": "./manifest.json"
   },
   "dependencies": {
-    "@pressforge/plugin-sdk": "0.1.0"
+    "@verbakit/plugin-sdk": "0.1.0"
   },
   "devDependencies": {
     "typescript": "^5.9.0"

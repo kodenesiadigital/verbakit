@@ -1,4 +1,4 @@
-# PressForge
+# Verbakit
 
 WordPress-like CMS running fully on Cloudflare. Plugin-extensible.
 

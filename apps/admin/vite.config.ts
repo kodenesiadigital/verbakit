@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-const API_TARGET = process.env.PRESSFORGE_API_URL ?? 'http://127.0.0.1:8787';
+const API_TARGET = process.env.VERBAKIT_API_URL ?? 'http://127.0.0.1:8787';
 
 // Admin dilayani di bawah /admin baik di dev maupun produksi, supaya
 // SPA fallback dan base path selalu sama.

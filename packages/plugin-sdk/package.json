@@ -1,9 +1,9 @@
 {
-  "name": "@pressforge/plugin-sdk",
+  "name": "@verbakit/plugin-sdk",
   "version": "0.1.0",
-  "description": "SDK untuk menulis plugin PressForge (mirip WordPress Plugin API).",
+  "description": "SDK untuk menulis plugin Verbakit (mirip WordPress Plugin API).",
   "license": "AGPL-3.0-or-later",
-  "homepage": "https://pressforge.my.id",
+  "homepage": "https://verbakit.my.id",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -19,11 +19,11 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "node ../../scripts/build-package.mjs . @pressforge/core",
+    "build": "node ../../scripts/build-package.mjs . @verbakit/core",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@pressforge/core": "0.1.0"
+    "@verbakit/core": "0.1.0"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",
@@ -31,10 +31,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/prorstun/pressforge.git"
+    "url": "git+https://github.com/verbakit/verbakit.git"
   },
   "bugs": {
-    "url": "https://github.com/prorstun/pressforge/issues"
+    "url": "https://github.com/verbakit/verbakit/issues"
   },
   "author": {
     "name": "prorstun"

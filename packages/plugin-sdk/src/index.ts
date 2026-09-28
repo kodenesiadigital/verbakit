@@ -15,7 +15,7 @@ import type {
   PluginContext,
   PluginOptionsStore,
   PluginRegistration,
-} from '@pressforge/core';
+} from '@verbakit/core';
 
 export type {
   AdminPageDef,

@@ -110,7 +110,7 @@ const ADMIN_INDEX = '/index.html';
  */
 async function serveAdmin(request: Request, env: Env, url: URL): Promise<Response> {
   if (!env.ASSETS) {
-    return text('Admin belum dibangun. Jalankan: npm run build -w @pressforge/admin', 503, 'text/plain; charset=utf-8');
+    return text('Admin belum dibangun. Jalankan: npm run build -w @verbakit/admin', 503, 'text/plain; charset=utf-8');
   }
 
   const relative = url.pathname.replace(/^\/admin\/?/, '') || ADMIN_INDEX;
