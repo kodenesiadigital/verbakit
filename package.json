@@ -31,6 +31,7 @@
     "build": "npm run build:registry && npm run build:packages && npm run typecheck && npm run build:admin",
     "deploy": "npm run build && npm run deploy -w @pressforge/api",
     "typecheck": "npm run typecheck --workspaces --if-present",
+    "set-admin-password": "node scripts/set-admin-password.mjs",
     "predev:api": "npm run build:packages",
     "dev:api": "npm run dev -w @pressforge/api",
     "dev:admin": "npm run dev -w @pressforge/admin"
