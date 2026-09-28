@@ -1,93 +1,117 @@
 import { useState } from 'react';
 
 /**
- * Halaman diagnostik (khusus dev): mencari elemen yang lebih lebar daripada
- * layar, sehingga tahu persis apa yang menyebabkan halaman bisa digeser
- * horizontal.
+ * Halaman diagnostik layout: mencari elemen yang benar-benar menyebabkan
+ * halaman bisa digeser horizontal.
+ *
+ * Catatan penting: elemen yang berada di luar layar ke KIRI (mis. drawer
+ * yang tertutup dengan translateX(-100%)) tidak menyebabkan scroll dan
+ * sengaja diabaikan. Yang dicari hanya elemen yang melewati tepi KANAN,
+ * dan elemen yang bukan bagian dari position:fixed (fixed tidak
+ * Transitional_layout contribute to overflow dokumen).
  */
 export function OverflowDebugPage() {
-  const [rows, setRows] = useState<ReportRow[] | null>(null);
+  const [rows, setRows] = useState<string[] | null>(null);
+  const [note, setNote] = useState('');
+
+  function hasFixedAncestor(el: HTMLElement): boolean {
+    let node: HTMLElement | null = el;
+    while (node && node !== document.body) {
+      if (getComputedStyle(node).position === 'fixed') return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
 
   function scan() {
     const docWidth = document.documentElement.clientWidth;
-    const found: ReportRow[] = [];
+    const all = Array.from(document.body.querySelectorAll<HTMLElement>('*'));
+    const overflowRight = new Set<HTMLElement>();
 
-    for (const el of Array.from(document.body.querySelectorAll<HTMLElement>('*'))) {
+    for (const el of all) {
       const style = getComputedStyle(el);
       if (style.display === 'none' || style.visibility === 'hidden') continue;
-
+      if (hasFixedAncestor(el)) continue;
       const rect = el.getBoundingClientRect();
       if (rect.width === 0) continue;
-      if (rect.right <= docWidth + 0.5 && rect.left >= -0.5) continue;
-
-      found.push({
-        tag: el.tagName.toLowerCase(),
-        cls: (typeof el.className === 'string' ? el.className : '').slice(0, 70),
-        position: style.position,
-        left: Math.round(rect.left),
-        right: Math.round(rect.right),
-        width: Math.round(rect.width),
-      });
+      if (rect.right > docWidth + 0.5) overflowRight.add(el);
     }
 
-    found.sort((a, b) => b.right - a.right);
-    setRows(found.slice(0, 25));
+    // Akar penyebab: elemen yang melebar tapi induknya tidak melebar.
+    const roots = Array.from(overflowRight).filter((el) => {
+      const parent = el.parentElement;
+      if (!parent) return true;
+      return !overflowRight.has(parent);
+    });
+
+    const describe = (el: HTMLElement) => {
+      const r = el.getBoundingClientRect();
+      const cls = typeof el.className === 'string' && el.className ? '.' + el.className.trim().split(/\s+/).join('.') : '';
+      return (
+        `${el.tagName.toLowerCase()}${cls}\n` +
+        `  posisi: ${getComputedStyle(el).position} | lebar: ${Math.round(r.width)}px | ` +
+        `kanan: ${Math.round(r.right)}px | layar: ${docWidth}px | melebihi: ${Math.round(r.right - docWidth)}px`
+      );
+    };
+
+    setNote(
+      `Layar: ${docWidth}px | total elemen melewati tepi kanan: ${overflowRight.size} | akar penyebab: ${roots.length}`,
+    );
+    setRows(roots.length ? roots.slice(0, 12).map(describe) : ['Tidak ada elemen yang melewati tepi kanan.']);
+  }
+
+  async function copy() {
+    if (!rows) return;
+    const text = `LAYAR ${typeof window !== 'undefined' ? document.documentElement.clientWidth : 0}px\n${note}\n\n${rows.join('\n\n')}`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setNote('Tersalin ke clipboard - tempel di chat.');
+    } catch {
+      setNote('Gagal menyalin. Select manual ya.');
+    }
   }
 
   return (
     <div style={{ padding: 16 }}>
-      <h1 style={{ fontSize: 20, marginBottom: 12 }}>Cari elemen melebar</h1>
+      <h1 style={{ fontSize: 20, marginBottom: 8 }}>Cari penyebab geser horizontal</h1>
       <p className="muted" style={{ marginTop: 0 }}>
-        Lebar layar: <strong>{typeof window !== 'undefined' ? document.documentElement.clientWidth : 0}px</strong>
+        Hanya mencari elemen yang melewati tepi <strong>kanan</strong>. Elemen di luar layar ke kiri (drawer tertutup)
+        dan elemen di dalam <code>position: fixed</code> diabaikan karena keduanya tidak membuat halaman bisa
+        digeser.
       </p>
-      <button className="wp-btn primary" onClick={scan}>
-        Pindai sekarang
-      </button>
 
-      {rows && (
-        <>
-          <p style={{ marginTop: 14 }}>
-            {rows.length === 0 ? (
-              <strong style={{ color: '#0a7c2f' }}>Tidak ada elemen yang melebar.</strong>
-            ) : (
-              <>
-                <strong style={{ color: '#d63638' }}>{rows.length} elemen melebar:</strong>
-              </>
-            )}
-          </p>
-          {rows.map((r, i) => (
-            <pre
-              key={`${r.tag}-${r.cls}-${i}`}
-              style={{
-                background: '#f6f7f7',
-                padding: 10,
-                fontSize: 12,
-                overflowX: 'auto',
-                border: '1px solid #dcdcde',
-              }}
-            >
-              {`${r.tag}${r.cls ? '.' + r.cls.split(' ').join('.') : ''}
-  position : ${r.position}
-  kiri     : ${r.left}px
-  kanan    : ${r.right}px
-  lebar    : ${r.width}px`}
-            </pre>
-          ))}
-        </>
-      )}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <button className="wp-btn primary" onClick={scan}>
+          Pindai sekarang
+        </button>
+        {rows && (
+          <button className="wp-btn" onClick={() => void copy()}>
+            Salin laporan
+          </button>
+        )}
+      </div>
+
+      {note && <p style={{ marginTop: 14, fontWeight: 600 }}>{note}</p>}
+
+      {rows?.map((row, i) => (
+        <pre
+          key={i}
+          style={{
+            background: row.startsWith('Tidak ada') ? '#e7f6ec' : '#f6f7f7',
+            padding: 10,
+            fontSize: 12,
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            border: '1px solid #dcdcde',
+          }}
+        >
+          {row}
+        </pre>
+      ))}
 
       <p className="muted" style={{ marginTop: 20 }}>
         <a href="/">Kembali ke Dasbor</a>
       </p>
     </div>
   );
-}
-
-interface ReportRow {
-  tag: string;
-  cls: string;
-  position: string;
-  left: number;
-  right: number;
-  width: number;
 }
