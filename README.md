@@ -83,6 +83,24 @@ Buka `http://127.0.0.1:5173/admin`, masuk dengan `admin` / `admin123`.
 
 ## Deploy
 
+### Pemasangan (satu perintah)
+
+Prasyarat: Node.js 20+ dan akun Cloudflare (gratis). Klien memasang di akunnya
+sendiri, jadi biaya infrastruktur tidak ada.
+
+```bash
+git clone https://github.com/kodenesiadigital/verbakit.git
+cd verbakit
+npm install
+npx wrangler login      # otorisasi akun Cloudflare milik Anda
+npm run setup
+```
+
+`npm run setup` menjalankan semuanya: cek login, buat resource D1/KV/R2 yang belum
+ada, tulis ID-nya ke `wrangler.toml`, pasang secret acak, build, deploy, lalu
+tampilkan URL dan kredensialnya. Aman dijalankan berulang — resource yang sudah
+ada dipakai ulang.
+
 Buat resource Cloudflare lebih dulu:
 
 ```bash
@@ -105,6 +123,23 @@ npx wrangler secret put SESSION_SECRET    # wajib, panjang acak
 npx wrangler secret put CRON_SECRET      # untuk /api/cron/tick
 npx wrangler secret put RESEND_API_KEY   # opsional, tanpa ini email reset hanya ditulis ke log
 ```
+
+### Deploy dari GitHub Actions
+
+Agar setiap `git push` ke `main` langsung deploy, isi 5 secret di
+**Settings → Secrets and variables → Actions**:
+
+| Secret | Isi |
+|---|---|
+| `CLOUDFLARE_ACCOUNT_ID` | Account ID dari dashboard |
+| `CLOUDFLARE_API_TOKEN` | Token dengan izin Workers Scripts, D1, KV, R2 (Edit) |
+| `D1_DATABASE_ID` | UUID database D1 |
+| `KV_NAMESPACE_ID` | Id namespace KV |
+| `R2_BUCKET_NAME` | Nama bucket R2 |
+
+Batas paket free Cloudflare yang perlu diketahui: 100.000 request/hari, CPU 10 ms per
+request, dan 1.000 tulis KV/hari. Untuk trafik lebih besar, upgrade Workers Paid
+($5/bulan).
 
 ## Menulis plugin
 

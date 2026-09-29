@@ -32,6 +32,7 @@
     "deploy": "npm run build && npm run deploy -w @verbakit/api",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "set-admin-password": "node scripts/set-admin-password.mjs",
+    "setup": "node scripts/setup.mjs",
     "publish:verbakit": "node scripts/publish-verbakit.mjs",
     "predev:api": "npm run build:packages",
     "dev:api": "npm run dev -w @verbakit/api",
