@@ -153,41 +153,52 @@ if (!kvId) {
   }
 }
 
-// R2 wajib ada: media upload adalah bagian inti CMS, tanpa bucket R2
-// dasbor akan gagal saat menyimpan gambar.
-if (!ada.r2) {
+// R2 bersifat opsional. Media adalah fitur tambahan; Kern CMS harus tetap bisa
+// jalan tanpa R2, jadi instalasi tidak dihentikan di sini.
+//
+// R2 tidak bisa diaktifkan lewat API: Cloudflare meminta metode pembayaran
+// lewat dashboard. Kalau dilewati, binding MEDIA sengaja tidak ditulis dan
+// endpoint media menjawab dengan pesan yang bisa ditindaklanjuti.
+let r2 = ada.r2;
+if (!r2) {
   const buat = await jalankan(['r2', 'bucket', 'create', NAMA.r2]);
-  if (buat.code !== 0) {
-    const teks = buat.out.replace(/\u001b\[[0-9;]*m/g, '');
-    if (/enable R2|10042/i.test(teks)) {
-      err('      R2 belum diaktifkan di akun Cloudflare ini.');
-      err('      Langkah: dashboard Cloudflare -> menu "R2 Object Storage" -> "Enable".');
-      err('      Sekali diaktifkan, jalankan ulang: npm run setup');
-      process.exit(1);
-    }
-    err(`      Gagal membuat bucket R2: ${teks.split('\n').filter((l) => l.trim()).slice(-1)}`);
-    err('      Jalankan ulang: npm run setup');
-    process.exit(1);
+  const teks = buat.out.replace(/\u001b\[[0-9;]*m/g, '');
+  if (buat.code === 0) {
+    r2 = NAMA.r2;
+    ok(`R2 ${NAMA.r2}`);
+  } else if (/enable R2|10042/i.test(teks)) {
+    info('R2 belum diaktifkan di akun ini - installation tetap dilanjutkan.');
+    info('  Nanti: dashboard Cloudflare -> "R2 Object Storage" -> Enable.');
+    info('  Sementara itu, unggah gambar akan menjawab "belum tersedia".');
+  } else {
+    info(`R2 gagal dibuat: ${teks.split('\n').filter((l) => l.trim()).slice(-1)}`);
+    info('  Instalasi dilanjutkan tanpa media; perbaiki R2 lalu jalankan ulang.');
   }
-  ok(`R2 ${NAMA.r2}`);
 } else ok(`R2 ${NAMA.r2} (pakai yang ada)`);
 
 // ------------------------------------------------------- 4. tulis wrangler.toml
 langkah(4, TOTAL, 'Menulis wrangler.toml');
 if (!d1Id || !kvId) {
-  err('      Resource belum lengkap sehingga konfigurasi tidak ditulis.');
+  err('      Resource inti belum lengkap sehingga konfigurasi tidak ditulis.');
   err(`      D1: ${d1Id ? 'ok' : 'gagal'}  |  KV: ${kvId ? 'ok' : 'gagal'}`);
   err('      Jalankan ulang: npm run setup');
-  process.exit(1);
   process.exit(1);
 }
 let toml = readFileSync(TOML, 'utf8');
 toml = toml
   .replace(/database_id\s*=\s*"[^"]*"/, `database_id = "${d1Id}"`)
-  .replace(/(bucket_name\s*=\s*)"[^"]*"/, `$1"${NAMA.r2}"`)
   .replace(/(\[\[kv_namespaces\]\]\s*\n\s*binding\s*=\s*"KV"\s*\n\s*id\s*=\s*)"[^"]*"/, `$1"${kvId}"`);
+
+if (r2) {
+  toml = toml.replace(/(bucket_name\s*=\s*)"[^"]*"/, `$1"${r2}"`);
+} else {
+  // Tanpa R2, blok binding-nya dihapus agar deploy tetap berhasil dan
+  // endpoint media bisa menjawab dengan pesan yang jelas.
+  toml = toml.replace(/\n\[\[r2_buckets\]\][\s\S]*?\n\n?/, '\n\n');
+}
+
 writeFileSync(TOML, toml, 'utf8');
-ok('D1, R2, dan KV terisi');
+ok(`D1 dan KV terisi${r2 ? `, R2 ${r2}` : ' (R2 dilewati)'}`);
 
 // ---------------------------------------------------------------- 5. secret
 langkah(5, TOTAL, 'Memasang secret acak');

@@ -7,12 +7,12 @@ interface MediaItem {
   key: string;
   size: number;
   uploaded?: string;
-  etag?: string;
 }
 
 export function MediaPage() {
   const [searchParams] = useSearchParams();
   const [media, setMedia] = useState<MediaItem[]>([]);
+  const [tersimpan, setTersimpan] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
@@ -29,8 +29,14 @@ export function MediaPage() {
 
   async function load() {
     try {
-      const data = await api.get<{ media: MediaItem[] }>('/api/media');
+      const data = await api.get<{ media: MediaItem[]; tersimpan?: boolean; pesan?: string }>('/api/media');
       setMedia(data.media);
+      if (data.tersimpan === false) {
+        setTersimpan(false);
+        setError(data.pesan ?? 'Penyimpanan gambar belum tersedia.');
+      } else {
+        setTersimpan(true);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat media');
     }
@@ -65,6 +71,12 @@ export function MediaPage() {
     <>
       {error && <div className="wp-notice error">{error}</div>}
       {notice && <div className="wp-notice success">{notice}</div>}
+      {!tersimpan && (
+        <div className="wp-notice">
+          <strong>Mode tanpa media.</strong> Semua fitur lain tetap berjalan. Aktifkan R2 di dashboard
+          Cloudflare untuk menyimpan gambar.
+        </div>
+      )}
 
       <div className="wp-card" ref={formRef}>
         <h2>

@@ -2,7 +2,11 @@ import { schemaSql } from './schema.ts';
 
 export interface Env {
   DB: D1Database;
-  MEDIA: R2Bucket;
+  /**
+   * Bucket media. Opsional: R2 bisa belum diaktifkan di akun Cloudflare,
+   * dan dalam keadaan itu CMS tetap jalan, hanya unggah gambar yang menolak.
+   */
+  MEDIA?: R2Bucket;
   KV: KVNamespace;
   SESSION_SECRET: string;
   ADMIN_EMAIL?: string;
