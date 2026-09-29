@@ -143,9 +143,27 @@ for (const [k, v] of Object.entries(ada)) info(`${k}: ${v ? 'ada, dipakai' : 'be
 // ------------------------------------------------------------- 3. buat resource
 langkah(3, TOTAL, 'Membuat resource yang belum ada');
 // D1 dibuat sekarang? menentukan apakah akun admin dibuat oleh proses ini
-// (dan perlu passwordnya disesuaikan).const d1Baru = !ada.d1;
-const d1Id = ada.d1 ?? (await jalankan(['d1', 'create', NAMA.d1])).out.match(/database_id\s*=\s*"([^"]+)"/)?.[1] ?? null;
-if (d1Id) ok(`D1 ${d1Id.slice(0, 8)}…${d1Baru ? ' (baru)' : ''}`);
+// (dan perlu passwordnya disesuaikan).
+const d1Baru = !ada.d1;
+let d1Id = ada.d1;
+if (!d1Id) {
+  const buat = await jalankan(['d1', 'create', NAMA.d1]);
+  const teks = buat.out.replace(/\u001b\[[0-9;]*m/g, '');
+  d1Id = buat.out.match(/database_id\s*=\s*"([^"]+)"/)?.[1] ?? null;
+  if (!d1Id && /already exists/i.test(teks)) {
+    // Penghapusan di Cloudflare tidak langsung tercermin di "d1 list", jadi
+    // create bisa ditolak padahal database sebenarnya sudah tidak ada.
+    // Ambil dari daftar, jangan gagalkan instalasi.
+    d1Id = ambilD1((await jalankan(['d1', 'list'])).out);
+    if (d1Id) ok(`D1 ${d1Id.slice(0, 8)}… (ditemukan dari daftar)`);
+  } else if (!d1Id) {
+    err('      Gagal membuat database D1. Output wrangler:');
+    for (const baris of teks.split('\n').filter((l) => l.trim()).slice(-4)) err('        ' + baris);
+    process.exit(1);
+  } else {
+    ok(`D1 ${d1Id.slice(0, 8)}… (baru)`);
+  }
+}
 
 // KV: buat, lalu ambil ID dari daftar resmi (bukan dari output create).
 let kvId = ada.kv;
