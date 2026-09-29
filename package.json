@@ -36,7 +36,8 @@
     "publish:verbakit": "node scripts/publish-verbakit.mjs",
     "predev:api": "npm run build:packages",
     "dev:api": "npm run dev -w @verbakit/api",
-    "dev:admin": "npm run dev -w @verbakit/admin"
+    "dev:admin": "npm run dev -w @verbakit/admin",
+    "commit:push": "powershell -ExecutionPolicy Bypass -File scripts/commit-push.ps1"
   },
   "devDependencies": {
     "typescript": "^5.9.0"
