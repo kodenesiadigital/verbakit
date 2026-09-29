@@ -73,6 +73,27 @@ async function applySchema(env: Env): Promise<void> {
   }
 }
 
+/**
+ * Tabel inti benar-benar ada di D1?
+ *
+ * Guard versi lama hanya-andal pada flag versi di KV. Kalau database D1 ter-reset
+ * atau diganti sementara flag KV masih ada, skema tidak pernah dibuat ulang dan
+ * semua endpoint API membalas 500 selamanya tanpa self-heal. Memeriksa tabel
+ * yang benar-benar ada membuat pemasangan lebih tahan banting.
+ */
+async function schemaIntact(env: Env): Promise<boolean> {
+  try {
+    const row = await env.DB.prepare(
+      "SELECT name FROM sqlite_master WHERE type = 'table' AND name = ? LIMIT 1",
+    )
+      .bind('posts')
+      .first<{ name: string }>();
+    return row?.name === 'posts';
+  } catch {
+    return false;
+  }
+}
+
 function getPluginManager(env: Env): PluginManager {
   let manager = managers.get(env);
   if (!manager) {
@@ -191,10 +212,11 @@ export default {
       return serveAdmin(request, env, url);
     }
 
-    // Boot: skema + seed (dijalankan ulang bila versi skema berubah).
-    if (env.KV) {
-      const applied = await env.KV.get(SCHEMA_KEY);
-      if (applied !== SCHEMA_VERSION) {
+      // Skema + seed. Dijalankan ulang bila versi skema berubah ATAU tabel inti
+      // hilang (D1 ter-reset / diganti) sehingga pemasangan pulih sendiri.
+      if (env.KV) {
+        const applied = await env.KV.get(SCHEMA_KEY);
+        if (applied !== SCHEMA_VERSION || !(await schemaIntact(env))) {
         await applySchema(env);
         await ensureAdminUser(env);
         await env.KV.put(SCHEMA_KEY, SCHEMA_VERSION);
