@@ -39,7 +39,17 @@ const langkah = (n, total, teks) => l(`\n[${n}/${total}] ${teks}`);
 const ok = (teks) => l(`      ✓ ${teks}`);
 const info = (teks) => l(`      · ${teks}`);
 
-function jalankan(args, { cwd = API, input } = {}) {
+/**
+ * Perintah inspeksi & pembuatan resource dijalankan dari root repo, bukan
+ * dari apps/api.
+ *
+ * Alasannya: bila wrangler.toml pernah rusak, semua perintah yang membacanya
+ * akan gagal - termasuk whoami. Kalau pemeriksaan login Depends pada file itu,
+ * installer berhenti di langkah 1 dan tidak pernah bisa memperbaiki file yang
+ * salah. Dijalankan dari root, perintah ini tidak membaca wrangler.toml sama
+ * sekali. Hanya "deploy" yang memang butuh konfigurasi.
+ */
+const jalankan = (args, { cwd = root, input } = {}) => {
   return new Promise((resolveRun) => {
     const child = spawn(process.execPath, [WRANGLER, ...args], {
       cwd,
@@ -54,7 +64,7 @@ function jalankan(args, { cwd = API, input } = {}) {
       child.stdin.end();
     }
   });
-}
+};
 
 const TOTAL = 6;
 
@@ -247,7 +257,7 @@ if (kodeBuild !== 0) {
 }
 ok('build selesai');
 
-const deploy = await jalankan(['deploy']);
+const deploy = await jalankan(['deploy'], { cwd: API });
 if (deploy.code !== 0) {
   err('      Deploy gagal. Jalankan: npx wrangler deploy');
   process.exit(1);
@@ -265,6 +275,7 @@ const adminPassword = crypto.randomBytes(12).toString('base64url');
 
 const pasang = async (nama, nilai) => {
   await new Promise((selesai) => {
+    // secret put membaca binding dari wrangler.toml, jadi tetap dari apps/api.
     const child = spawn(process.execPath, [WRANGLER, 'secret', 'put', nama], { cwd: API, stdio: ['pipe', 'pipe', 'pipe'] });
     let o = '';
     child.stdout.on('data', (d) => (o += d));
