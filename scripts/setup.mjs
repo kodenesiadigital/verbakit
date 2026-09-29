@@ -17,7 +17,8 @@
  */
 import crypto from 'node:crypto';
 import { spawn } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -141,8 +142,10 @@ for (const [k, v] of Object.entries(ada)) info(`${k}: ${v ? 'ada, dipakai' : 'be
 
 // ------------------------------------------------------------- 3. buat resource
 langkah(3, TOTAL, 'Membuat resource yang belum ada');
+// D1 dibuat sekarang? menentukan apakah akun admin dibuat oleh proses ini
+// (dan perlu passwordnya disesuaikan).const d1Baru = !ada.d1;
 const d1Id = ada.d1 ?? (await jalankan(['d1', 'create', NAMA.d1])).out.match(/database_id\s*=\s*"([^"]+)"/)?.[1] ?? null;
-if (d1Id) ok(`D1 ${d1Id.slice(0, 8)}…`);
+if (d1Id) ok(`D1 ${d1Id.slice(0, 8)}…${d1Baru ? ' (baru)' : ''}`);
 
 // KV: buat, lalu ambil ID dari daftar resmi (bukan dari output create).
 let kvId = ada.kv;
@@ -292,6 +295,28 @@ await pasang('SESSION_SECRET', crypto.randomBytes(32).toString('base64url'));
 await pasang('CRON_SECRET', crypto.randomBytes(24).toString('base64url'));
 await pasang('ADMIN_PASSWORD', adminPassword);
 
+// Perbaiki akun admin pada instalasi baru.
+//
+// Worker di-deploy pada langkah 5, jadi ensureAdminUser sudah membuat akun
+// admin memakai nilai ADMIN_PASSWORD yang saat itu belum terpasang - yaitu
+// nilai bawaan. Akibatnya password yang dicetak di bawah tidak cocok.
+// Pada instalasi baru saja hash-nya ditulis ulang; instalasi yang sudah
+// punya data tidak disentuh sama sekali.
+if (d1Baru) {
+  const iterations = 100_000;
+  const salt = crypto.randomBytes(16);
+  const hash = crypto.pbkdf2Sync(adminPassword, salt, iterations, 32, 'sha256');
+  const b64url = (buf) => buf.toString('base64url');
+  const stored = `pbkdf2$sha256$${iterations}$${b64url(salt)}$${b64url(hash)}`;
+
+  const dir = mkdtempSync(join(tmpdir(), 'pf-pass-'));
+  const file = join(dir, 'set.sql');
+  writeFileSync(file, `UPDATE users SET password_hash = '${stored}' WHERE username = 'admin'`);
+  const hasil = await jalankan(['d1', 'execute', NAMA.d1, '--remote', '--file', file]);
+  rmSync(dir, { recursive: true, force: true });
+  ok(hasil.code === 0 ? 'password admin disesuaikan' : 'password admin GAGAL disesuaikan');
+}
+
 // ------------------------------------------------------------------ penutup
 // Subdomain workers.dev tidak bisa ditebak: "whoami" tidak mencetaknya, dan
 // domain email sama sekali tidak terkait. Output deploy yang jadi sumbernya.
@@ -304,7 +329,7 @@ l(`  Situs        : ${url}`);
 l(`  Dasbor admin : ${url}/admin`);
 l(`  Worker       : ${NAMA.worker}`);
 l(`  D1           : ${NAMA.d1} (${d1Id.slice(0, 8)}…)`);
-l(`  R2           : ${NAMA.r2}`);
+l(`  R2           : ${r2 ?? 'belum aktif (media nonaktif)'}`);
 l(`  KV           : ${NAMA.kv} (${kvId.slice(0, 8)}…)`);
 l('');
 l('  Login admin  : admin');
