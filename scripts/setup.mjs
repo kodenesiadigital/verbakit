@@ -136,7 +136,13 @@ ok('D1, R2, dan KV terisi');
 
 // ---------------------------------------------------------------- 5. secret
 langkah(5, TOTAL, 'Memasang secret acak');
-const pasang = async (nama) => {
+
+// Password admin HARUS ditampilkan. Pada instalasi baru, akun admin
+// di-seed memakai nilai secret ADMIN_PASSWORD; kalau tidak dicetak, pemilik
+// instalasi tidak akan pernah bisa masuk.
+const adminPassword = crypto.randomBytes(12).toString('base64url');
+
+const pasang = async (nama, nilai) => {
   await new Promise((selesai) => {
     const child = spawn(process.execPath, [WRANGLER, 'secret', 'put', nama], { cwd: API, stdio: ['pipe', 'pipe', 'pipe'] });
     let o = '';
@@ -146,14 +152,14 @@ const pasang = async (nama) => {
       ok(/success|uploaded/i.test(o) ? nama : `${nama} (gagal)`);
       selesai();
     });
-    child.stdin.write(crypto.randomBytes(32).toString('base64url') + '\n');
+    child.stdin.write(nilai + '\n');
     child.stdin.end();
   });
 };
-await pasang('SESSION_SECRET');
-await pasang('CRON_SECRET');
-await pasang('ADMIN_PASSWORD');
-ok('ADMIN_PASSWORD dibuat acak (akan ditampilkan di langkah terakhir)');
+await pasang('SESSION_SECRET', crypto.randomBytes(32).toString('base64url'));
+await pasang('CRON_SECRET', crypto.randomBytes(24).toString('base64url'));
+await pasang('ADMIN_PASSWORD', adminPassword);
+ok('ADMIN_PASSWORD dibuat acak (ditampilkan di ringkasan)');
 
 // ---------------------------------------------------------------- 6. deploy
 langkah(6, TOTAL, 'Build & deploy');
@@ -195,8 +201,10 @@ l(`  R2           : ${NAMA.r2}`);
 l(`  KV           : ${NAMA.kv} (${kvId.slice(0, 8)}…)`);
 l('');
 l('  Login admin  : admin');
-l('  Password     : jalankan  npm run set-admin-password');
-l('                 (password dibuat di terminal Anda, tidak dicetak di sini)');
+l(`  Password     : ${adminPassword}`);
+l('');
+l('  Simpan password ini sekarang. Untuk ganti: npm run set-admin-password');
+l('  (Password hanya ditampilkan sekali, saat instalasi.)');
 l('');
 l('  Deploy ulang : git push  (CI otomatis) atau  npm run deploy');
 l('─'.repeat(64) + '\n');
