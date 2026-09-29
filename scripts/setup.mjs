@@ -93,16 +93,22 @@ const ambilR2 = (teks) => (teks.includes(NAMA.r2) ? NAMA.r2 : null);
  * versi wrangler, sehingga regex di sana rapuh. "kv namespace list"
  * mengeluarkan JSON yang stabil, jadi itu yang dipakai.
  */
-const cariKv = (keluaran) => {
+/**
+ * Daftar namespace KV di akun. Output "kv namespace list" berupa JSON; kalau
+ * sampai tidak bisa diurai, kembalikan daftar kosong agar langkah berikutnya
+ * tetap berjalan (namespace lalu dibuat ulang).
+ */
+async function daftarKv() {
+  const keluaran = (await jalankan(['kv', 'namespace', 'list'])).out;
   try {
     const data = JSON.parse(keluaran.replace(/^\uFEFF/, ''));
-    const found = (Array.isArray(data) ? data : []).find((n) => n?.title === NAMA.kv);
-    return found?.id ?? null;
+    return Array.isArray(data) ? data : [];
   } catch {
-    return null;
+    return [];
   }
-};
-const idKvDariDaftar = async () => cariKv((await jalankan(['kv', 'namespace', 'list'])).out);
+}
+
+const idKvDariDaftar = async () => (await daftarKv()).find((n) => n?.title === NAMA.kv)?.id ?? null;
 const idKvDiToml = () => {
   const m = readFileSync(TOML, 'utf8').match(/\[\[kv_namespaces\]\][\s\S]*?id\s*=\s*"([0-9a-f]{32})"/);
   return m?.[1] ?? null;
@@ -116,12 +122,10 @@ const ada = {
 {
   // Pakai ID yang sudah tertulis di wrangler.toml asal namespace-nya
   // benar-benar masih ada di akun; kalau tidak, akan dibuat baru.
+  const daftar = await daftarKv();
+  const semuaId = daftar.map((n) => n.id);
   const diToml = idKvDiToml();
-  const semua = await idKvDariDaftar();
-  if (diToml) {
-    const masihAda = JSON.parse(semua.replace(/^\uFEFF/, '')).some((n) => n?.id === diToml);
-    ada.kv = masihAda ? diToml : null;
-  }
+  ada.kv = diToml && semuaId.includes(diToml) ? diToml : (daftar.find((n) => n.title === NAMA.kv)?.id ?? null);
 }
 for (const [k, v] of Object.entries(ada)) info(`${k}: ${v ? 'ada, dipakai' : 'belum ada'}`);
 
