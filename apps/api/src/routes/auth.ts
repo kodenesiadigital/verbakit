@@ -15,6 +15,7 @@ import {
   consumePasswordResetToken,
   countUsers,
   createPasswordResetToken,
+  createUser,
   getOption,
   invalidatePasswordResetToken,
   setOption,
@@ -47,9 +48,10 @@ async function findUserByLogin(env: Env, login: string) {
 }
 
 /** Seeds an admin user + default options on first boot. */
+/** Seeding akun admin oleh installer (dipakai CLI). */
 export async function ensureAdminUser(env: Env): Promise<boolean> {
   if ((await countUsers(env)) > 0) return false;
-  const email = env.ADMIN_EMAIL ?? 'admin@verbakit.test';
+  const email = env.ADMIN_EMAIL ?? 'admin@cms.test';
   const password = env.ADMIN_PASSWORD ?? 'admin123';
   const passwordHash = await hashPassword(password);
   const id = crypto.randomUUID();
@@ -77,6 +79,55 @@ export async function ensureDefaultOptions(env: Env): Promise<void> {
 
 const LOGIN_LIMIT = { limit: 5, windowSeconds: 300 };
 const RESET_LIMIT = { limit: 3, windowSeconds: 900 };
+
+export const setupRoutes: RouteDef[] = [
+  // Apakah instalasi sudah punya akun admin? Dipakai dasbor untuk
+  // menampilkan wizard first-run.
+  {
+    method: 'get',
+    path: '/api/setup/status',
+    handler: async ({ env }) => {
+      const total = await countUsers(env);
+      return json({ perluSetup: total === 0, total });
+    },
+  },
+  // Membuat akun admin pertama.
+  //
+  // Hanya boleh jalan saat belum ada pengguna sama sekali. Karena itu
+  // endpoint ini tidak butuh sesi, dan tetap begitu setelah admin ada.
+  {
+    method: 'post',
+    path: '/api/setup/admin',
+    handler: async ({ env, request }) => {
+      if ((await countUsers(env)) > 0) {
+        return forbidden('Instalasi sudah punya pengguna');
+      }
+      const ipKey = clientKey(request);
+      const limit = await checkRateLimit(env.KV, `setup:${ipKey}`, { limit: 5, windowSeconds: 900 });
+      if (!limit.ok) return json({ error: 'Terlalu banyak percobaan. Coba lagi nanti.' }, 429);
+
+      const body = (await request.json()) as {
+        username?: string;
+        email?: string;
+        password?: string;
+      };
+      const username = String(body.username ?? '').trim();
+      const email = String(body.email ?? '').trim();
+      const password = String(body.password ?? '');
+
+      if (username.length < 3) return badRequest('Nama pengguna minimal 3 karakter');
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return badRequest('Email tidak valid');
+      if (password.length < 8) return badRequest('Password minimal 8 karakter');
+
+      // another guard: jangan sampai dua permintaan bersamaan membuat 2 admin.
+      if ((await countUsers(env)) > 0) return forbidden('Instalasi sudah punya pengguna');
+
+      const user = await createUser(env, { username, email, password, role: 'admin' });
+      await clearRateLimit(env.KV, `setup:${ipKey}`);
+      return json({ user: { id: user.id, username: user.username, email: user.email } }, 201);
+    },
+  },
+];
 
 export const authRoutes: RouteDef[] = [
   {

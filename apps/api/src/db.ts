@@ -323,6 +323,31 @@ export async function setOption(env: Env, name: string, value: string): Promise<
     .run();
 }
 
+/**
+ * Kunci penandatangan sesi.
+ *
+ * Sumber urutan: secret SESSION_SECRET lebih dulu. Kalau tidak ada - yaitu
+ * instalasi yang belum pernah menjalankan wrangler secret put, misalnya saat
+ * klien cukup membuka dasbor lewat browser - kunci acak dibuat sendiri lalu
+ * disimpan di D1.
+ *
+ * Disimpan di D1 terasa lebih lemah daripada secret, tapi D1 sudah berada
+ * di sisi server dan pemiliknya adalah account itu sendiri. Ini yang
+ * membuat instalasi tanpa terminal menjadi mungkin sama sekali.
+ */
+const SESSION_KEY_OPTION = 'internal:session_secret';
+
+export async function resolveSessionSecret(env: Env): Promise<string> {
+  if (env.SESSION_SECRET) return env.SESSION_SECRET;
+
+  const tersimpan = await getOption(env, SESSION_KEY_OPTION);
+  if (tersimpan && tersimpan.length >= 32) return tersimpan;
+
+  const baru = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '');
+  await setOption(env, SESSION_KEY_OPTION, baru);
+  return baru;
+}
+
 export async function getOption(env: Env, name: string): Promise<string | null> {
   const row = await env.DB.prepare('SELECT value FROM options WHERE name = ?').bind(name).first<{ value: string }>();
   return row?.value ?? null;

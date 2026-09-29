@@ -16,6 +16,7 @@ import { ForgotPasswordPage } from './pages/ForgotPassword.tsx';
 import { ResetPasswordPage } from './pages/ResetPassword.tsx';
 import { ProfilePage } from './pages/Profile.tsx';
 import { IconGalleryPage } from './pages/IconGallery.tsx';
+import { SetupWizard } from './pages/SetupWizard.tsx';
 import { OverflowDebugPage } from './pages/OverflowDebug.tsx';
 import { api } from './api.ts';
 import { Icon } from './icons.tsx';
@@ -105,8 +106,19 @@ function Page({
 export function App() {
   const { user, loading } = useAuth();
   const location = useLocation();
+  const [perluSetup, setPerluSetup] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    api
+      .get<{ perluSetup: boolean }>('/api/setup/status')
+      .then((data) => setPerluSetup(data.perluSetup))
+      .catch(() => setPerluSetup(false));
+  }, []);
 
   if (loading) return <div className="login-page">Memuat…</div>;
+
+  // Instalasi baru: pemilik membuat akun sendiri lewat browser, tanpa terminal.
+  if (perluSetup) return <SetupWizard onSelesai={() => window.location.reload()} />;
 
   // Halaman ini harus bisa diakses tanpa sesi.
   if (location.pathname === '/lupa-password') return <ForgotPasswordPage />;

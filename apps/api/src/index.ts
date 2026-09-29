@@ -1,25 +1,21 @@
-import { Router, json } from './router.ts';
+import { Router, json, text } from './router.ts';
 import { readSessionToken } from './security.ts';
-import { getSessionCookie } from './routes/auth.ts';
-import { ensureAdminUser } from './routes/auth.ts';
+import { getOption, resolveSessionSecret } from './db.ts';
+import { getSessionCookie, ensureAdminUser, ensureDefaultOptions, authRoutes, setupRoutes } from './routes/auth.ts';
 import { register } from './routes/types.ts';
-import { authRoutes } from './routes/auth.ts';
 import { postRoutes } from './routes/posts.ts';
 import { optionsRoutes } from './routes/options.ts';
 import { pluginsRoutes } from './routes/plugins.ts';
 import { mediaRoutes } from './routes/media.ts';
 import { systemRoutes } from './routes/system.ts';
 import { userRoutes } from './routes/users.ts';
-import { themeRoutes } from './routes/themes.ts';
+import { themeRoutes, resolveTheme } from './routes/themes.ts';
 import { termRoutes } from './routes/terms.ts';
 import { servicePluginRoutes } from './routes/plugin-store.ts';
 import { cronRoutes } from './routes/cron.ts';
 import { registerSeoRoutes } from './routes/seo.ts';
 import { registerPublicRoutes, renderErrorPage } from './routes/public.ts';
-import { resolveTheme } from './routes/themes.ts';
-import { getOption } from './db.ts';
 import { bind } from './background.ts';
-import { text } from './router.ts';
 import { PluginManager } from './plugins/manager.ts';
 import type { Env } from './types.ts';
 import { schemaSql, SCHEMA_VERSION } from './schema.ts';
@@ -203,6 +199,7 @@ export default {
   async fetch(request: Request, env: Env, ctx: WorkerContext): Promise<Response> {
     bind(env, (promise) => ctx.waitUntil(promise));
     const url = new URL(request.url);
+    let sessionSecret = '';
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders(request) });
     }
@@ -212,22 +209,13 @@ export default {
       return serveAdmin(request, env, url);
     }
 
-    // Gagal tertutup bila kunci sesi belum ada.
+    // Kunci sesi: pakai secret bila ada, kalau tidak buat sendiri di D1.
     //
     // Cloudflare tidak mengizinkan "versions upload" pada Worker yang belum
-    // pernah ada, jadi deploy pertama Pasti tanpa SESSION_SECRET. Selama
-    // jendela itu, token sesi bisa ditandatangani dengan kunci kosong.
-    // Daripada membuka celah itu, endpoint API menolak bekerja sampai
-    // secret benar-benar terpasang.
-    if (!env.SESSION_SECRET && url.pathname.startsWith('/api/')) {
-      return json(
-        {
-          error: 'Instalasi belum selesai: SESSION_SECRET belum dipasang.',
-          solusi: 'npx wrangler secret put SESSION_SECRET  (lalu deploy ulang)',
-        },
-        503,
-      );
-    }
+    // pernah ada, jadi deploy pertama selalu berjalan tanpa SESSION_SECRET.
+    // Daripada membuka jendela ketika token bisa ditandatangani dengan kunci
+    // kosong, kunci-nya dis Provisions sendiri saat permintaan pertama.
+    sessionSecret = await resolveSessionSecret(env);
 
       // Skema + seed. Dijalankan ulang bila versi skema berubah ATAU tabel inti
       // hilang (D1 ter-reset / diganti) sehingga pemasangan pulih sendiri.
@@ -235,7 +223,10 @@ export default {
         const applied = await env.KV.get(SCHEMA_KEY);
         if (applied !== SCHEMA_VERSION || !(await schemaIntact(env))) {
         await applySchema(env);
-        await ensureAdminUser(env);
+        await ensureDefaultOptions(env);
+        // Akun admin hanya dibuat installer. Tanpa ADMIN_PASSWORD, akun
+        // pertama dibuat sendiri oleh pemilik lewat wizard first-run.
+        if (env.ADMIN_PASSWORD) await ensureAdminUser(env);
         await env.KV.put(SCHEMA_KEY, SCHEMA_VERSION);
       }
     }
@@ -243,6 +234,7 @@ export default {
     const router = new Router();
     register(router, [
       ...authRoutes,
+      ...setupRoutes,
       ...postRoutes,
       ...optionsRoutes,
       ...pluginsRoutes,
@@ -270,7 +262,7 @@ export default {
     }
 
     // Auth gate for non-public API routes.
-    const session = await readSessionToken(env.SESSION_SECRET, getSessionCookie(request));
+    const session = await readSessionToken(sessionSecret, getSessionCookie(request));
     if (!isPublic(url.pathname)) {
       if (!session) {
         return json({ error: 'Silakan login terlebih dahulu' }, 401);
