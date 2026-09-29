@@ -200,43 +200,24 @@ if (r2) {
 writeFileSync(TOML, toml, 'utf8');
 ok(`D1 dan KV terisi${r2 ? `, R2 ${r2}` : ' (R2 dilewati)'}`);
 
-// ---------------------------------------------------------------- 5. secret
-langkah(5, TOTAL, 'Memasang secret acak');
-
-// Password admin HARUS ditampilkan. Pada instalasi baru, akun admin
-// di-seed memakai nilai secret ADMIN_PASSWORD; kalau tidak dicetak, pemilik
-// instalasi tidak akan pernah bisa masuk.
-const adminPassword = crypto.randomBytes(12).toString('base64url');
-
-const pasang = async (nama, nilai) => {
-  await new Promise((selesai) => {
-    const child = spawn(process.execPath, [WRANGLER, 'secret', 'put', nama], { cwd: API, stdio: ['pipe', 'pipe', 'pipe'] });
-    let o = '';
-    child.stdout.on('data', (d) => (o += d));
-    child.stderr.on('data', (d) => (o += d));
-    child.on('close', () => {
-      ok(/success|uploaded/i.test(o) ? nama : `${nama} (gagal)`);
-      selesai();
-    });
-    child.stdin.write(nilai + '\n');
-    child.stdin.end();
+// ---------------------------------------------------------------- 5. deploy
+//
+// Deploy harus lebih dulu daripada pemasangan secret: "wrangler secret put"
+// butuh Worker yang sudah ada. Pada akun baru urutannya dibalik membuat
+// semua secret gagal.
+//
+// Catatan: versi pertama sempat jalan tanpa SESSION_SECRET, jadi ada jendela
+// beberapa detik sebelum secret terpasang. Untuk instalasi baru risikonya
+// sangat kecil, tapi jangan sebarkan URL-nya sebelum langkah selesai.
+langkah(5, TOTAL, 'Build & deploy');
+const kodeBuild = await new Promise((selesai) => {
+  const c = spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', 'build'], {
+    cwd: root,
+    stdio: 'inherit',
+    shell: process.platform === 'win32',
   });
-};
-await pasang('SESSION_SECRET', crypto.randomBytes(32).toString('base64url'));
-await pasang('CRON_SECRET', crypto.randomBytes(24).toString('base64url'));
-await pasang('ADMIN_PASSWORD', adminPassword);
-ok('ADMIN_PASSWORD dibuat acak (ditampilkan di ringkasan)');
-
-// ---------------------------------------------------------------- 6. deploy
-langkah(6, TOTAL, 'Build & deploy');
-const build = await spawnSyncish();
-function spawnSyncish() {
-  return new Promise((r) => {
-    const c = spawn(process.platform === 'win32' ? 'npm.cmd' : 'npm', ['run', 'build'], { cwd: root, stdio: 'inherit', shell: process.platform === 'win32' });
-    c.on('close', (code) => r(code));
-  });
-}
-const kodeBuild = await build;
+  c.on('close', (code) => selesai(code));
+});
 if (kodeBuild !== 0) {
   err('      Build gagal.');
   process.exit(1);
@@ -250,6 +231,32 @@ if (deploy.code !== 0) {
 }
 const versi = deploy.out.match(/Current Version ID:\s*(\S+)/)?.[1];
 ok(`deploy Worker ${versi ? '(' + versi.slice(0, 8) + '…)' : ''}`);
+
+// ---------------------------------------------------------------- 6. secret
+langkah(6, TOTAL, 'Memasang secret acak');
+
+// Password admin HARUS ditampilkan. Pada instalasi baru, akun admin
+// di-seed memakai nilai secret ADMIN_PASSWORD; kalau tidak dicetak, pemilik
+// instalasi tidak akan pernah bisa masuk.
+const adminPassword = crypto.randomBytes(12).toString('base64url');
+
+const pasang = async (nama, nilai) => {
+  await new Promise((selesai) => {
+    const child = spawn(process.execPath, [WRANGLER, 'secret', 'put', nama], { cwd: API, stdio: ['pipe', 'pipe', 'pipe'] });
+    let o = '';
+    child.stdout.on('data', (d) => (o += d));
+    child.stderr.on('data', (d) => (o += d));
+    child.on('close', () => {
+      ok(/success|uploaded/i.test(o.replace(/\u001b\[[0-9;]*m/g, '')) ? nama : `${nama} (gagal)`);
+      selesai();
+    });
+    child.stdin.write(nilai + '\n');
+    child.stdin.end();
+  });
+};
+await pasang('SESSION_SECRET', crypto.randomBytes(32).toString('base64url'));
+await pasang('CRON_SECRET', crypto.randomBytes(24).toString('base64url'));
+await pasang('ADMIN_PASSWORD', adminPassword);
 
 // ------------------------------------------------------------------ penutup
 // Subdomain workers.dev tidak bisa ditebak: "whoami" tidak mencetaknya, dan
