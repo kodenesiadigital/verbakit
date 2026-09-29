@@ -28,6 +28,9 @@ export interface WorkerContext {
 
 const PUBLIC_PATHS = new Set<string>([
   '/api/auth/login',
+  // Dipakai tanpa sesi: untuk wizard first-run.
+  '/api/setup/status',
+  '/api/setup/admin',
   // Dipakai tanpa sesi: memang tujuannya menjangkau pengguna yang belum login.
   '/api/auth/forgot-password',
   '/api/auth/reset-password',
