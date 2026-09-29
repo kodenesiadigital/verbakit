@@ -153,9 +153,23 @@ if (!kvId) {
   }
 }
 
+// R2 wajib ada: media upload adalah bagian inti CMS, tanpa bucket R2
+// dasbor akan gagal saat menyimpan gambar.
 if (!ada.r2) {
   const buat = await jalankan(['r2', 'bucket', 'create', NAMA.r2]);
-  ok(buat.code === 0 ? `R2 ${NAMA.r2}` : `R2 ${NAMA.r2} (gagal: ${buat.out.split('\n').filter((l) => l.includes('ERROR')).slice(-1)})`);
+  if (buat.code !== 0) {
+    const teks = buat.out.replace(/\u001b\[[0-9;]*m/g, '');
+    if (/enable R2|10042/i.test(teks)) {
+      err('      R2 belum diaktifkan di akun Cloudflare ini.');
+      err('      Langkah: dashboard Cloudflare -> menu "R2 Object Storage" -> "Enable".');
+      err('      Sekali diaktifkan, jalankan ulang: npm run setup');
+      process.exit(1);
+    }
+    err(`      Gagal membuat bucket R2: ${teks.split('\n').filter((l) => l.trim()).slice(-1)}`);
+    err('      Jalankan ulang: npm run setup');
+    process.exit(1);
+  }
+  ok(`R2 ${NAMA.r2}`);
 } else ok(`R2 ${NAMA.r2} (pakai yang ada)`);
 
 // ------------------------------------------------------- 4. tulis wrangler.toml
