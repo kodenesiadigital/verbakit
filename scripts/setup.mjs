@@ -86,24 +86,43 @@ const ambilD1 = (teks) => {
 const ambilR2 = (teks) => (teks.includes(NAMA.r2) ? NAMA.r2 : null);
 
 /**
- * Untuk KV, jangan searching berdasarkan title: judul namespace bisa
- * apa saja (mis. "KV"). Lebih aman: pakai ID yang sudah tertulis di
- * wrangler.toml, tapi hanya kalau namespace itu masih ada di akun.
+ * Cari KV berdasarkan judul lewat daftar, bukan dengan mengurai output
+ * "kv namespace create".
+ *
+ * Output create memuat kode warna ANSI dan formatnya bisa berubah antar
+ * versi wrangler, sehingga regex di sana rapuh. "kv namespace list"
+ * mengeluarkan JSON yang stabil, jadi itu yang dipakai.
  */
+const cariKv = (keluaran) => {
+  try {
+    const data = JSON.parse(keluaran.replace(/^\uFEFF/, ''));
+    const found = (Array.isArray(data) ? data : []).find((n) => n?.title === NAMA.kv);
+    return found?.id ?? null;
+  } catch {
+    return null;
+  }
+};
+const idKvDariDaftar = async () => cariKv((await jalankan(['kv', 'namespace', 'list'])).out);
 const idKvDiToml = () => {
   const m = readFileSync(TOML, 'utf8').match(/\[\[kv_namespaces\]\][\s\S]*?id\s*=\s*"([0-9a-f]{32})"/);
   return m?.[1] ?? null;
 };
-const semuaIdKv = [...kvList.matchAll(/"id":\s*"([0-9a-f]{32})"/g)].map((m) => m[1]);
 
 const ada = {
   d1: ambilD1(d1List),
   r2: ambilR2(r2List),
-  kv: (() => {
-    const diToml = idKvDiToml();
-    return diToml && semuaIdKv.includes(diToml) ? diToml : null;
-  })(),
+  kv: null,
 };
+{
+  // Pakai ID yang sudah tertulis di wrangler.toml asal namespace-nya
+  // benar-benar masih ada di akun; kalau tidak, akan dibuat baru.
+  const diToml = idKvDiToml();
+  const semua = await idKvDariDaftar();
+  if (diToml) {
+    const masihAda = JSON.parse(semua.replace(/^\uFEFF/, '')).some((n) => n?.id === diToml);
+    ada.kv = masihAda ? diToml : null;
+  }
+}
 for (const [k, v] of Object.entries(ada)) info(`${k}: ${v ? 'ada, dipakai' : 'belum ada'}`);
 
 // ------------------------------------------------------------- 3. buat resource
@@ -111,19 +130,37 @@ langkah(3, TOTAL, 'Membuat resource yang belum ada');
 const d1Id = ada.d1 ?? (await jalankan(['d1', 'create', NAMA.d1])).out.match(/database_id\s*=\s*"([^"]+)"/)?.[1] ?? null;
 if (d1Id) ok(`D1 ${d1Id.slice(0, 8)}…`);
 
-const kvId =
-  ada.kv ?? (await jalankan(['kv', 'namespace', 'create', NAMA.kv])).out.match(/"id":\s*"([0-9a-f]{32})"/)?.[1] ?? null;
-if (kvId) ok(`KV ${kvId.slice(0, 8)}…`);
+// KV: buat, lalu ambil ID dari daftar resmi (bukan dari output create).
+let kvId = ada.kv;
+if (!kvId) {
+  const buat = await jalankan(['kv', 'namespace', 'create', NAMA.kv]);
+  if (buat.code !== 0) {
+    // Namespace dengan judul sama mungkin sudah ada dari percobaan sebelumnya.
+    kvId = await idKvDariDaftar();
+    if (!kvId) {
+      err('      Gagal membuat namespace KV. Output wrangler:');
+      for (const baris of buat.out.split('\n').filter((l) => l.trim()).slice(-6)) err('        ' + baris);
+      process.exit(1);
+    }
+    ok(`KV sudah ada dari percobaan sebelumnya: ${kvId.slice(0, 8)}…`);
+  } else {
+    kvId = await idKvDariDaftar();
+    if (kvId) ok(`KV ${kvId.slice(0, 8)}…`);
+  }
+}
 
 if (!ada.r2) {
-  await jalankan(['r2', 'bucket', 'create', NAMA.r2]);
-  ok(`R2 ${NAMA.r2}`);
+  const buat = await jalankan(['r2', 'bucket', 'create', NAMA.r2]);
+  ok(buat.code === 0 ? `R2 ${NAMA.r2}` : `R2 ${NAMA.r2} (gagal: ${buat.out.split('\n').filter((l) => l.includes('ERROR')).slice(-1)})`);
 } else ok(`R2 ${NAMA.r2} (pakai yang ada)`);
 
 // ------------------------------------------------------- 4. tulis wrangler.toml
 langkah(4, TOTAL, 'Menulis wrangler.toml');
 if (!d1Id || !kvId) {
-  err('      Gagal membuat resource. Periksa kuota akun (free: 10 D1, 100 worker).');
+  err('      Resource belum lengkap sehingga konfigurasi tidak ditulis.');
+  err(`      D1: ${d1Id ? 'ok' : 'gagal'}  |  KV: ${kvId ? 'ok' : 'gagal'}`);
+  err('      Jalankan ulang: npm run setup');
+  process.exit(1);
   process.exit(1);
 }
 let toml = readFileSync(TOML, 'utf8');
