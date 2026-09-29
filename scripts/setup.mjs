@@ -287,6 +287,14 @@ const versi = deploy.out.match(/Current Version ID:\s*(\S+)/)?.[1];
 ok(`deploy Worker ${versi ? '(' + versi.slice(0, 8) + '…)' : ''}`);
 
 // ---------------------------------------------------------------- 6. secret
+//
+// Cloudflare menolak "versions upload" untuk Worker yang belum pernah ada,
+// jadi deploy pertama Pasti berjalan tanpa SESSION_SECRET. Celah itu ditutup
+// dari sisi aplikasi: tanpa SESSION_SECRET, endpoint /api/* membalas 503 dan
+// tidak pernah mengeluarkan token sesi.
+//
+// Secret dipasang sekaligus lewat "secret bulk" agar hanya terbit satu versi
+// baru, bukan tiga.
 langkah(6, TOTAL, 'Memasang secret acak');
 
 // Password admin HARUS ditampilkan. Pada instalasi baru, akun admin
@@ -294,24 +302,27 @@ langkah(6, TOTAL, 'Memasang secret acak');
 // instalasi tidak akan pernah bisa masuk.
 const adminPassword = crypto.randomBytes(12).toString('base64url');
 
-const pasang = async (nama, nilai) => {
-  await new Promise((selesai) => {
-    // secret put membaca binding dari wrangler.toml, jadi tetap dari apps/api.
-    const child = spawn(process.execPath, [WRANGLER, 'secret', 'put', nama], { cwd: API, stdio: ['pipe', 'pipe', 'pipe'] });
-    let o = '';
-    child.stdout.on('data', (d) => (o += d));
-    child.stderr.on('data', (d) => (o += d));
-    child.on('close', () => {
-      ok(/success|uploaded/i.test(o.replace(/\u001b\[[0-9;]*m/g, '')) ? nama : `${nama} (gagal)`);
-      selesai();
-    });
-    child.stdin.write(nilai + '\n');
-    child.stdin.end();
-  });
+const secretValues = {
+  SESSION_SECRET: crypto.randomBytes(32).toString('base64url'),
+  CRON_SECRET: crypto.randomBytes(24).toString('base64url'),
+  ADMIN_PASSWORD: adminPassword,
 };
-await pasang('SESSION_SECRET', crypto.randomBytes(32).toString('base64url'));
-await pasang('CRON_SECRET', crypto.randomBytes(24).toString('base64url'));
-await pasang('ADMIN_PASSWORD', adminPassword);
+
+const dirSecret = mkdtempSync(join(tmpdir(), 'pf-secret-'));
+const fileSecret = join(dirSecret, 'secrets.json');
+writeFileSync(fileSecret, JSON.stringify(secretValues));
+// secret put membaca binding dari wrangler.toml, jadi tetap dari apps/api.
+const pasang = await jalankan(['secret', 'bulk', fileSecret], { cwd: API });
+rmSync(dirSecret, { recursive: true, force: true });
+ok(
+  pasang.code === 0
+    ? 'SESSION_SECRET, CRON_SECRET, ADMIN_PASSWORD (satu versi)'
+    : 'secret gagal dipasang',
+);
+if (pasang.code !== 0) {
+  err('      ' + pasang.out.replace(/\u001b\[[0-9;]*m/g, '').split('\n').filter((l) => l.trim()).slice(-2).join(' | '));
+  err('      Dasbor akan menolak API sampai secret terpasang.');
+}
 
 // Perbaiki akun admin pada instalasi baru.
 //

@@ -212,6 +212,23 @@ export default {
       return serveAdmin(request, env, url);
     }
 
+    // Gagal tertutup bila kunci sesi belum ada.
+    //
+    // Cloudflare tidak mengizinkan "versions upload" pada Worker yang belum
+    // pernah ada, jadi deploy pertama Pasti tanpa SESSION_SECRET. Selama
+    // jendela itu, token sesi bisa ditandatangani dengan kunci kosong.
+    // Daripada membuka celah itu, endpoint API menolak bekerja sampai
+    // secret benar-benar terpasang.
+    if (!env.SESSION_SECRET && url.pathname.startsWith('/api/')) {
+      return json(
+        {
+          error: 'Instalasi belum selesai: SESSION_SECRET belum dipasang.',
+          solusi: 'npx wrangler secret put SESSION_SECRET  (lalu deploy ulang)',
+        },
+        503,
+      );
+    }
+
       // Skema + seed. Dijalankan ulang bila versi skema berubah ATAU tabel inti
       // hilang (D1 ter-reset / diganti) sehingga pemasangan pulih sendiri.
       if (env.KV) {
