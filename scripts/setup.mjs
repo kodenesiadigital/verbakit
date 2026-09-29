@@ -184,20 +184,43 @@ if (!d1Id || !kvId) {
   err('      Jalankan ulang: npm run setup');
   process.exit(1);
 }
-let toml = readFileSync(TOML, 'utf8');
-toml = toml
-  .replace(/database_id\s*=\s*"[^"]*"/, `database_id = "${d1Id}"`)
-  .replace(/(\[\[kv_namespaces\]\]\s*\n\s*binding\s*=\s*"KV"\s*\n\s*id\s*=\s*)"[^"]*"/, `$1"${kvId}"`);
 
-if (r2) {
-  toml = toml.replace(/(bucket_name\s*=\s*)"[^"]*"/, `$1"${r2}"`);
-} else {
-  // Tanpa R2, blok binding-nya dihapus agar deploy tetap berhasil dan
-  // endpoint media bisa menjawab dengan pesan yang jelas.
-  toml = toml.replace(/\n\[\[r2_buckets\]\][\s\S]*?\n\n?/, '\n\n');
+/**
+ * wrangler.toml digenerate utuh, bukan disunting dengan regex.
+ *
+ * Menyunting file yang sama berulang kalidewasa.reddit ended up merusak
+ * TOML: satu blok terbuang sebagian, menyisakan kunci yatim yang
+ * membuat wrangler menolak memuat konfigurasi.
+ */
+function susunToml() {
+  const bagian = [
+    'name = "verbakit-api"',
+    'main = "src/index.ts"',
+    'compatibility_date = "2025-01-01"',
+    'compatibility_flags = ["nodejs_compat"]',
+    '',
+    '# Aset statis (build admin) disajikan Worker di bawah /admin.',
+    '[assets]',
+    'directory = "../admin/dist"',
+    'binding = "ASSETS"',
+    'not_found_handling = "none"',
+    'run_worker_first = true',
+    '',
+    '[[d1_databases]]',
+    'binding = "DB"',
+    'database_name = "verbakit-db"',
+    `database_id = "${d1Id}"`,
+    '',
+  ];
+  if (r2) {
+    bagian.push('[[r2_buckets]]', 'binding = "MEDIA"', `bucket_name = "${r2}"`, '');
+  }
+  bagian.push('[[kv_namespaces]]', 'binding = "KV"', `id = "${kvId}"`, '');
+  bagian.push('[vars]', 'ADMIN_EMAIL = "admin@verbakit.test"', '');
+  return bagian.join('\n');
 }
 
-writeFileSync(TOML, toml, 'utf8');
+writeFileSync(TOML, susunToml(), 'utf8');
 ok(`D1 dan KV terisi${r2 ? `, R2 ${r2}` : ' (R2 dilewati)'}`);
 
 // ---------------------------------------------------------------- 5. deploy
